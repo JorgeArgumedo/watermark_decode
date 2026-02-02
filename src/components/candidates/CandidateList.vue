@@ -18,9 +18,16 @@
             :label="t('analysis.clear')"
           >
             <q-list dense>
-              <q-item v-close-popup clickable @click="confirmClearAll">
+              <q-item
+                v-close-popup
+                clickable
+                @click="confirmClearAll"
+              >
                 <q-item-section avatar>
-                  <q-icon name="delete_forever" color="negative" />
+                  <q-icon
+                    name="delete_forever"
+                    color="negative"
+                  />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label class="text-negative">
@@ -54,7 +61,10 @@
                 "
               >
                 <q-item-section avatar>
-                  <q-icon name="check_circle" color="positive" />
+                  <q-icon
+                    name="check_circle"
+                    color="positive"
+                  />
                 </q-item-section>
                 <q-item-section>{{ t("status.found") }}</q-item-section>
               </q-item>
@@ -66,7 +76,10 @@
                 "
               >
                 <q-item-section avatar>
-                  <q-icon name="warning" color="warning" />
+                  <q-icon
+                    name="warning"
+                    color="warning"
+                  />
                 </q-item-section>
                 <q-item-section>{{ t("status.not_found") }}</q-item-section>
               </q-item>
@@ -78,7 +91,10 @@
                 "
               >
                 <q-item-section avatar>
-                  <q-icon name="error" color="negative" />
+                  <q-icon
+                    name="error"
+                    color="negative"
+                  />
                 </q-item-section>
                 <q-item-section>{{ t("status.error") }}</q-item-section>
               </q-item>
@@ -112,7 +128,10 @@
                 "
               >
                 <q-item-section avatar>
-                  <q-icon name="thumb_up" color="positive" />
+                  <q-icon
+                    name="thumb_up"
+                    color="positive"
+                  />
                 </q-item-section>
                 <q-item-section>{{ t("status.approved") }}</q-item-section>
               </q-item>
@@ -126,7 +145,10 @@
                 "
               >
                 <q-item-section avatar>
-                  <q-icon name="block" color="negative" />
+                  <q-icon
+                    name="block"
+                    color="negative"
+                  />
                 </q-item-section>
                 <q-item-section>{{ t("status.excluded") }}</q-item-section>
               </q-item>
@@ -136,8 +158,15 @@
       </div>
 
       <!-- Filters -->
-      <div v-if="totalCandidatesCount > 0" class="row q-gutter-sm">
-        <q-btn-group outline spread class="col-12 col-sm-auto">
+      <div
+        v-if="totalCandidatesCount > 0"
+        class="row q-gutter-sm"
+      >
+        <q-btn-group
+          outline
+          spread
+          class="col-12 col-sm-auto"
+        >
           <q-btn
             v-for="status in SYSTEM_STATUS_OPTIONS"
             :key="status.value"
@@ -154,7 +183,11 @@
           </q-btn>
         </q-btn-group>
 
-        <q-btn-group outline spread class="col-12 col-sm-auto">
+        <q-btn-group
+          outline
+          spread
+          class="col-12 col-sm-auto"
+        >
           <q-btn
             v-for="status in ANALYSIS_STATUS_OPTIONS"
             :key="status.value"
@@ -174,7 +207,10 @@
     </div>
 
     <!-- Virtual List -->
-    <div v-if="filteredCandidatesCount > 0" class="col relative-position">
+    <div
+      v-if="filteredCandidatesCount > 0"
+      class="col relative-position"
+    >
       <q-virtual-scroll
         v-slot="{ item }"
         class="absolute-full"

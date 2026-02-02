@@ -1,16 +1,29 @@
 <template>
-  <div ref="detailWrapper" class="candidate-detail-wrapper full-height">
-    <q-card bordered flat class="candidate-detail bg-white full-height column">
+  <div
+    ref="detailWrapper"
+    class="candidate-detail-wrapper full-height"
+  >
+    <q-card
+      bordered
+      flat
+      class="candidate-detail bg-white full-height column"
+    >
       <q-card-section class="col overflow-auto">
         <div class="text-h6 q-mb-md">
           {{ t("analysis.candidateDetails") }}
         </div>
 
         <!-- Details List -->
-        <q-list separator dense>
+        <q-list
+          separator
+          dense
+        >
           <q-item>
             <q-item-section avatar>
-              <q-icon name="fingerprint" color="primary" />
+              <q-icon
+                name="fingerprint"
+                color="primary"
+              />
             </q-item-section>
             <q-item-section>
               <q-item-label caption>
@@ -28,7 +41,10 @@
                 {{ t("analysis.inputSequence") }}
               </q-item-label>
               <div class="q-py-sm">
-                <HorizontalSymbols :sequence="candidate.sequence" size="lg" />
+                <HorizontalSymbols
+                  :sequence="candidate.sequence"
+                  size="lg"
+                />
               </div>
             </q-item-section>
           </q-item>

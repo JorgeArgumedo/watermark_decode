@@ -1,6 +1,9 @@
 <template>
   <q-layout view="hHh lpR fFf">
-    <q-header elevated class="bg-primary text-white">
+    <q-header
+      elevated
+      class="bg-primary text-white"
+    >
       <q-toolbar>
         <q-toolbar-title>
           {{ t("common.appName") }}
@@ -14,17 +17,29 @@
           icon="language"
         >
           <q-list>
-            <q-item v-close-popup clickable @click="setLocale('es')">
+            <q-item
+              v-close-popup
+              clickable
+              @click="setLocale('es')"
+            >
               <q-item-section>
                 <q-item-label>{{ t("common.spanish") }}</q-item-label>
               </q-item-section>
             </q-item>
-            <q-item v-close-popup clickable @click="setLocale('en')">
+            <q-item
+              v-close-popup
+              clickable
+              @click="setLocale('en')"
+            >
               <q-item-section>
                 <q-item-label>{{ t("common.english") }}</q-item-label>
               </q-item-section>
             </q-item>
-            <q-item v-close-popup clickable @click="setLocale('pt')">
+            <q-item
+              v-close-popup
+              clickable
+              @click="setLocale('pt')"
+            >
               <q-item-section>
                 <q-item-label>{{ t("common.portuguese") }}</q-item-label>
               </q-item-section>
@@ -32,7 +47,13 @@
           </q-list>
         </q-btn-dropdown>
 
-        <q-btn flat round dense icon="help" @click="$router.push('/help')" />
+        <q-btn
+          flat
+          round
+          dense
+          icon="help"
+          @click="$router.push('/help')"
+        />
       </q-toolbar>
     </q-header>
 

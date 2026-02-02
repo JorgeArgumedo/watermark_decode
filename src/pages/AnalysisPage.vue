@@ -10,7 +10,10 @@
           leave-active-class="animated fadeOut"
           mode="out-in"
         >
-          <div v-if="selectedCandidate" key="detail">
+          <div
+            v-if="selectedCandidate"
+            key="detail"
+          >
             <q-btn
               flat
               icon="arrow_back"
@@ -22,7 +25,10 @@
           </div>
 
           <!-- Input View -->
-          <div v-else key="input">
+          <div
+            v-else
+            key="input"
+          >
             <q-card class="q-mb-md">
               <q-card-section>
                 <div class="text-h6 q-mb-md">
@@ -54,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import InputTabs from "@/components/input/InputTabs.vue";
 import CandidateList from "@/components/candidates/CandidateList.vue";
@@ -76,6 +82,22 @@ const selectedCandidate = ref<Candidate | null>(null);
 const onCandidateSelect = (candidate: Candidate) => {
   selectedCandidate.value = candidate;
 };
+
+// Sync selection: if the active candidate is removed from the store, deselect it
+watch(
+  () => candidatesStore.candidates,
+  (newCandidates) => {
+    if (selectedCandidate.value) {
+      const stillExists = newCandidates.some(
+        (candidate) => candidate.id === selectedCandidate.value?.id,
+      );
+      if (!stillExists) {
+        selectedCandidate.value = null;
+      }
+    }
+  },
+  { deep: true },
+);
 
 const handleSequenceSubmit = async (symbolicSequence: string) => {
   const loadingNotification = $q.notify({
