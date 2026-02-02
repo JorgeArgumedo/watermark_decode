@@ -1,13 +1,13 @@
 <template>
   <div class="sequence-input">
     <q-input
+      ref="inputRef"
       v-model="model"
       outlined
       :label="t('analysis.inputSequence')"
       :error="!!error"
       :error-message="error"
       class="q-mb-sm"
-      ref="inputRef"
     >
       <template #append>
         <q-btn
@@ -23,7 +23,10 @@
     </q-input>
 
     <q-slide-transition>
-      <div v-if="showPicker" class="q-mb-md border-radius-inherit bg-grey-1">
+      <div
+        v-if="showPicker"
+        class="q-mb-md border-radius-inherit bg-grey-1"
+      >
         <SymbolPicker @select="onSymbolSelect" />
       </div>
     </q-slide-transition>
@@ -51,7 +54,7 @@ const symbolsStore = useSymbolsStore();
 
 const model = computed({
   get: () => props.modelValue,
-  set: (val) => emit("update:modelValue", val),
+  set: (value) => emit("update:modelValue", value),
 });
 
 const showPicker = ref(false);

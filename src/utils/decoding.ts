@@ -26,6 +26,7 @@ export function symbolsToInt(
 
   for (let index = 0; index < symbolCharacters.length; index++) {
     const glyph = symbolCharacters[index];
+    if (!glyph) continue; // Safety check
     const symbolIndex = symbolMap.get(glyph);
 
     if (symbolIndex === undefined) {

@@ -2,9 +2,12 @@
   <div class="candidate-list column full-height">
     <!-- Toolbar -->
     <div class="col-auto row items-center justify-between q-mb-md">
-      <div class="text-h6">{{ t("analysis.candidateList") }} ({{ count }})</div>
+      <div class="text-h6">
+        {{ t("analysis.candidateList") }} ({{ count }})
+      </div>
       <div class="row q-gutter-sm">
         <q-btn
+          v-if="count > 0"
           outline
           dense
           color="primary"
@@ -12,25 +15,27 @@
           icon="delete_sweep"
           :label="t('analysis.clearAll')"
           @click="candidatesStore.clearAll()"
-          v-if="count > 0"
         />
       </div>
     </div>
 
     <!-- Virtual List -->
-    <div class="col relative-position" v-if="count > 0">
+    <div
+      v-if="count > 0"
+      class="col relative-position"
+    >
       <q-virtual-scroll
+        v-slot="{ item }"
         class="absolute-full"
         :items="candidates"
-        v-slot="{ item }"
       >
         <CandidateItem
           :key="item.id"
           :candidate="item"
           :selected="selectedId === item.id"
+          class="q-mb-sm q-mr-sm"
           @delete="candidatesStore.removeCandidate"
           @select="$emit('select', $event)"
-          class="q-mb-sm q-mr-sm"
         />
       </q-virtual-scroll>
     </div>
@@ -41,8 +46,13 @@
       class="col text-center q-pa-xl text-grey-5 border-dashed rounded-borders row flex-center"
     >
       <div>
-        <q-icon name="playlist_remove" size="4rem" />
-        <div class="text-h6 q-mt-md">{{ t("analysis.noCandidates") }}</div>
+        <q-icon
+          name="playlist_remove"
+          size="4rem"
+        />
+        <div class="text-h6 q-mt-md">
+          {{ t("analysis.noCandidates") }}
+        </div>
       </div>
     </div>
   </div>
@@ -53,13 +63,14 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useCandidatesStore } from "@/stores/candidates";
 import CandidateItem from "./CandidateItem.vue";
+import type { Candidate } from "@/types/candidate";
 
-const props = defineProps<{
+defineProps<{
   selectedId?: string | null;
 }>();
 
 defineEmits<{
-  (event: "select", candidate: any): void;
+  (event: "select", candidate: Candidate): void;
 }>();
 
 const { t } = useI18n();

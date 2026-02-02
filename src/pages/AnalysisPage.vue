@@ -10,7 +10,10 @@
           leave-active-class="animated fadeOut"
           mode="out-in"
         >
-          <div v-if="selectedCandidate" key="detail">
+          <div
+            v-if="selectedCandidate"
+            key="detail"
+          >
             <q-btn
               flat
               icon="arrow_back"
@@ -22,7 +25,10 @@
           </div>
 
           <!-- Input View -->
-          <div v-else key="input">
+          <div
+            v-else
+            key="input"
+          >
             <q-card class="q-mb-md">
               <q-card-section>
                 <div class="text-h6 q-mb-md">
@@ -78,9 +84,7 @@ const onCandidateSelect = (candidate: Candidate) => {
 };
 
 // Simplified logic adhering to SRP: Logic delegated to store
-const createCandidate = candidatesStore.createCandidate; // Expose for handleIdSubmit if needed, or better, move handleIdSubmit logic to store too?
-// Actually handleIdSubmit logic is simple enough but let's keep consistency.
-// But wait, createCandidate is now exposed from store.
+// createCandidate removed as it was unused
 
 const handleSequenceSubmit = async (sequence: string) => {
   const loading = $q.notify({
@@ -113,13 +117,15 @@ const handleSequenceSubmit = async (sequence: string) => {
         color: "warning",
       });
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error processing sequence:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     loading({
       icon: "error",
       spinner: false,
       message: "Error generating candidates",
-      caption: error.message || "Unknown error",
+      caption: errorMessage,
       timeout: 2500,
       color: "negative",
     });

@@ -62,15 +62,15 @@ export function validateIdPersona(id: string): ValidationResult {
 
   // Check if it's within BIGINT UNSIGNED range (0 to 2^64 - 1)
   try {
-    const n = BigInt(id);
-    if (n < 0n) {
+    const numericId = BigInt(id);
+    if (numericId < 0n) {
       return { valid: false, error: "ID must be non-negative" };
     }
-    if (n > 18446744073709551615n) {
+    if (numericId > 18446744073709551615n) {
       // 2^64 - 1
       return { valid: false, error: "ID exceeds maximum value" };
     }
-  } catch (e) {
+  } catch (error) {
     return { valid: false, error: "Invalid number format" };
   }
 

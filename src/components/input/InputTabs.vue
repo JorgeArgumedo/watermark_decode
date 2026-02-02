@@ -9,15 +9,27 @@
       align="justify"
       narrow-indicator
     >
-      <q-tab name="sequence" :label="t('analysis.inputSequence')" />
-      <q-tab name="id" :label="t('analysis.inputId')" />
+      <q-tab
+        name="sequence"
+        :label="t('analysis.inputSequence')"
+      />
+      <q-tab
+        name="id"
+        :label="t('analysis.inputId')"
+      />
     </q-tabs>
 
     <q-separator />
 
-    <q-tab-panels v-model="tab" animated>
+    <q-tab-panels
+      v-model="tab"
+      animated
+    >
       <q-tab-panel name="sequence">
-        <SequenceInput v-model="sequenceValue" @valid="onSequenceValid" />
+        <SequenceInput
+          v-model="sequenceValue"
+          @valid="onSequenceValid"
+        />
         <div class="row justify-end q-mt-sm">
           <q-btn
             color="primary"
@@ -27,21 +39,24 @@
                 : t('analysis.addCandidate')
             "
             :disable="!isSequenceValid"
-            @click="handleSequenceSubmit"
             icon="add"
+            @click="handleSequenceSubmit"
           />
         </div>
       </q-tab-panel>
 
       <q-tab-panel name="id">
-        <IdPersonaInput v-model="idValue" @valid="onIdValid" />
+        <IdPersonaInput
+          v-model="idValue"
+          @valid="onIdValid"
+        />
         <div class="row justify-end q-mt-sm">
           <q-btn
             color="primary"
             :label="t('analysis.addCandidate')"
             :disable="!isIdValid"
-            @click="handleIdSubmit"
             icon="add"
+            @click="handleIdSubmit"
           />
         </div>
       </q-tab-panel>

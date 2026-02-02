@@ -4,7 +4,11 @@
       <div class="col-12 q-mb-sm text-caption text-grey">
         {{ t("help.symbolSet") }}
       </div>
-      <div v-for="symbol in symbols" :key="symbol" class="col-auto">
+      <div
+        v-for="symbol in symbols"
+        :key="symbol"
+        class="col-auto"
+      >
         <q-btn
           outline
           dense

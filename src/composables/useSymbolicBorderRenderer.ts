@@ -1,11 +1,6 @@
 import { intToSymbolSeq } from "@/utils/encoding";
 import { SYMBOLS, DEFAULT_BASE } from "@/utils/symbols";
-import {
-  buildSidePath,
-  parsePixels,
-  formatCoordinate,
-  toNumber,
-} from "@/utils/border";
+import { buildSidePath, parsePixels, formatCoordinate } from "@/utils/border";
 
 export interface BorderOptions {
   number?: number | string;
@@ -13,7 +8,7 @@ export interface BorderOptions {
   separator?: string;
   sepPos?: "inline" | "start";
   symbols?: readonly string[];
-  css?: {
+  customStyles?: {
     borderColor?: string;
     borderWidth?: number | string;
     glyphColor?: string;
@@ -25,11 +20,16 @@ export interface BorderOptions {
 }
 
 export function useSymbolicBorderRenderer() {
-  function ensurePADDING(el: HTMLElement, sides: string[], css: any) {
-    const computed = window.getComputedStyle(el);
-    // Avoid reading textSize from css if not string, parse safely?
-    // Original uses css.textSize or '13px'
-    const baseTextSize = css && css.textSize ? css.textSize : "13px";
+  function ensurePadding(
+    element: HTMLElement,
+    sides: string[],
+    customStyles: BorderOptions["customStyles"],
+  ) {
+    const computed = window.getComputedStyle(element);
+    // Avoid reading textSize from customStyles if not string, parse safely?
+    // Original uses customStyles.textSize or '13px'
+    const baseTextSize =
+      customStyles && customStyles.textSize ? customStyles.textSize : "13px";
     let textPx = 13;
 
     // Original attempts to measure 'X'
@@ -46,11 +46,14 @@ export function useSymbolicBorderRenderer() {
       textPx = 13;
     }
 
-    const borderWidth = css && css.borderWidth ? Number(css.borderWidth) : 6;
+    const borderWidth =
+      customStyles && customStyles.borderWidth
+        ? Number(customStyles.borderWidth)
+        : 6;
     const needed = Math.ceil(borderWidth * 0.8 + textPx * 0.5 + 4);
 
     // Check if padding already applied (data attribute)
-    if (el.dataset._sb_padding_applied) return;
+    if (element.dataset._sb_padding_applied) return;
 
     // Read current padding
     const pTop = parseFloat(computed.paddingTop) || 0;
@@ -68,30 +71,30 @@ export function useSymbolicBorderRenderer() {
     }
 
     // Apply padding
-    el.style.paddingTop =
+    element.style.paddingTop =
       (targetSides.includes("top") ? pTop + needed : pTop) + "px";
-    el.style.paddingRight =
+    element.style.paddingRight =
       (targetSides.includes("right") ? pRight + needed : pRight) + "px";
-    el.style.paddingBottom =
+    element.style.paddingBottom =
       (targetSides.includes("bottom") ? pBottom + needed : pBottom) + "px";
-    el.style.paddingLeft =
+    element.style.paddingLeft =
       (targetSides.includes("left") ? pLeft + needed : pLeft) + "px";
 
     // Store original padding to restore later if needed
-    el.dataset._sb_padding_top = String(pTop);
-    el.dataset._sb_padding_right = String(pRight);
-    el.dataset._sb_padding_bottom = String(pBottom);
-    el.dataset._sb_padding_left = String(pLeft);
+    element.dataset._sb_padding_top = String(pTop);
+    element.dataset._sb_padding_right = String(pRight);
+    element.dataset._sb_padding_bottom = String(pBottom);
+    element.dataset._sb_padding_left = String(pLeft);
 
-    el.dataset._sb_padding_applied = "1";
+    element.dataset._sb_padding_applied = "1";
   }
 
-  function renderBorder(el: HTMLElement, options: BorderOptions = {}) {
+  function renderBorder(element: HTMLElement, options: BorderOptions = {}) {
     // 1. Prepare
-    const computed = window.getComputedStyle(el);
+    const computed = window.getComputedStyle(element);
     if (computed.position === "static") {
-      el.style.position = "relative";
-      el.dataset._sb_setPosition = "1";
+      element.style.position = "relative";
+      element.dataset._sb_setPosition = "1";
     }
 
     // Default options
@@ -104,13 +107,16 @@ export function useSymbolicBorderRenderer() {
 
     const separator = options.separator || "●";
     const sepPos = options.sepPos || "inline";
-    const css = options.css || {};
+    const customStyles = options.customStyles || {};
     const repeatGapFactor = options.repeatGapFactor || 1.05;
-    const radius = css.radius !== undefined ? Number(css.radius) : 10;
+    const radius =
+      customStyles.radius !== undefined ? Number(customStyles.radius) : 10;
     const borderWidth =
-      css.borderWidth !== undefined ? Number(css.borderWidth) : 6;
-    const textSize = css.textSize || "13px";
-    const textColor = css.textColor || "#0b1220";
+      customStyles.borderWidth !== undefined
+        ? Number(customStyles.borderWidth)
+        : 6;
+    const textSize = customStyles.textSize || "13px";
+    const textColor = customStyles.textColor || "#0b1220";
 
     const symbolsArray =
       Array.isArray(options.symbols) && options.symbols.length
@@ -119,7 +125,7 @@ export function useSymbolicBorderRenderer() {
     const base = symbolsArray.length || DEFAULT_BASE;
 
     // 2. Ensure SVG overlay exists
-    let svg = el.querySelector(
+    let svg = element.querySelector(
       'svg[data-created-by="symbolic-border"]',
     ) as SVGSVGElement;
     let centerPath: SVGPathElement;
@@ -138,7 +144,7 @@ export function useSymbolicBorderRenderer() {
       svg.style.overflow = "visible";
       svg.style.zIndex = "999";
       svg.dataset.createdBy = "symbolic-border";
-      el.appendChild(svg);
+      element.appendChild(svg);
 
       // Center Path
       centerPath = document.createElementNS(
@@ -165,7 +171,9 @@ export function useSymbolicBorderRenderer() {
       sepText.style.fontFamily =
         '"Segoe UI Symbol", "Noto Sans Symbols", "DejaVu Sans", "Symbola", monospace';
       // Cast to any to avoid "Property 'fontVariantEmoji' does not exist on type 'CSSStyleDeclaration'" error in TS
-      (sepText.style as any).fontVariantEmoji = "text";
+      (
+        sepText.style as CSSStyleDeclaration & { fontVariantEmoji: string }
+      ).fontVariantEmoji = "text";
       sepText.style.fontWeight = "700";
       // sepText styles set dynamically below
 
@@ -183,7 +191,9 @@ export function useSymbolicBorderRenderer() {
       );
       symText.style.fontFamily =
         '"Segoe UI Symbol", "Noto Sans Symbols", "DejaVu Sans", "Symbola", monospace';
-      (symText.style as any).fontVariantEmoji = "text";
+      (
+        symText.style as CSSStyleDeclaration & { fontVariantEmoji: string }
+      ).fontVariantEmoji = "text";
       symText.setAttribute("dominant-baseline", "middle");
 
       symTextPath = document.createElementNS(
@@ -204,10 +214,11 @@ export function useSymbolicBorderRenderer() {
     }
 
     // 3. Ensure Padding
-    ensurePADDING(el, sides, { textSize, borderWidth });
+    ensurePadding(element, sides, { textSize, borderWidth });
 
     // 4. Compute Sizes
-    const explicitSize = parsePixels(css.textSize || textSize, 13) || 13;
+    const explicitSize =
+      parsePixels(customStyles.textSize || textSize, 13) || 13;
     // Use font size from element if set, or explicit
     const parentFontSize = symTextPath.parentElement?.style.fontSize
       ? parsePixels(symTextPath.parentElement.style.fontSize, explicitSize)
@@ -217,25 +228,27 @@ export function useSymbolicBorderRenderer() {
 
     if (symTextPath.parentElement) {
       symTextPath.parentElement.style.fontSize = `${glyphPx}px`;
-      symTextPath.parentElement.style.fill = css.glyphColor || textColor;
+      symTextPath.parentElement.style.fill =
+        customStyles.glyphColor || textColor;
     }
     if (sepTextPath.parentElement) {
       sepTextPath.parentElement.style.fontSize = `${glyphPx}px`;
-      sepTextPath.parentElement.style.fill = css.glyphColor || textColor; // Using glyphColor for separator too? Original does
+      sepTextPath.parentElement.style.fill =
+        customStyles.glyphColor || textColor; // Using glyphColor for separator too? Original does
     }
 
     // Padding for Glyph to stay inside
     const padGlyph = Math.max(0, Math.ceil(glyphPx / 2));
 
     // Geometry
-    const outerW = Math.max(0, el.clientWidth);
-    const outerH = Math.max(0, el.clientHeight);
+    const outerW = Math.max(0, element.clientWidth);
+    const outerH = Math.max(0, element.clientHeight);
     const innerInset = Math.max(1, Math.round(borderWidth)) + padGlyph;
 
     const innerW = Math.max(0, outerW - innerInset * 2);
     const innerH = Math.max(0, outerH - innerInset * 2);
 
-    const borderColor = css.borderColor || "#000";
+    const borderColor = customStyles.borderColor || "#000";
 
     // Build Paths
     const allSides = ["top", "right", "bottom", "left"].every((s) =>
@@ -265,7 +278,7 @@ export function useSymbolicBorderRenderer() {
     } else {
       bandPath.setAttribute("d", ""); // No filled band for partial sides in this impl?
       // Original script says: if (!allSides) bandPath d='', CENTER PATH gets stroke
-      // Wait, checking original...
+      // Wait, centerHeightecking original...
       // "if (allSides) ... else { bandPath d=''; ... centerPath stroke width ... }"
       // It seems partial borders are rendered as strokes on centerPath in the original??
       // Actually no, look closely at original:
@@ -281,21 +294,21 @@ export function useSymbolicBorderRenderer() {
 
     // Logic for partial borders center path
     if (!allSides) {
-      let cx = centerInset;
-      let cy = 0;
-      let cw = Math.max(0, outerW - centerInset * 2);
-      let ch = outerH;
+      const centerX = centerInset;
+      let centerY = 0;
+      const centerWidth = Math.max(0, outerW - centerInset * 2);
+      let centerHeight = outerH;
 
       if (sides.includes("top") || sides.includes("bottom")) {
-        cy = centerInset;
-        ch = Math.max(0, outerH - centerInset * 2);
+        centerY = centerInset;
+        centerHeight = Math.max(0, outerH - centerInset * 2);
       }
 
       const centerD = buildSidePath(
-        cx,
-        cy,
-        cw,
-        ch,
+        centerX,
+        centerY,
+        centerWidth,
+        centerHeight,
         Math.max(0, radius - centerInset),
         sides,
       );
@@ -327,16 +340,16 @@ export function useSymbolicBorderRenderer() {
     // It seems they overwrite centerPath d for text?
 
     const centerInsetForText = Math.ceil(borderWidth / 2) + padGlyph;
-    const tcx = centerInsetForText;
-    const tcy = centerInsetForText;
-    const tcw = Math.max(0, outerW - centerInsetForText * 2);
-    const tch = Math.max(0, outerH - centerInsetForText * 2); // Original had *2
+    const tcenterX = centerInsetForText;
+    const tcenterY = centerInsetForText;
+    const tcenterWidth = Math.max(0, outerW - centerInsetForText * 2);
+    const tcenterHeight = Math.max(0, outerH - centerInsetForText * 2); // Original had *2
 
     const centerDForText = buildSidePath(
-      tcx,
-      tcy,
-      tcw,
-      tch,
+      tcenterX,
+      tcenterY,
+      tcenterWidth,
+      tcenterHeight,
       Math.max(0, radius - centerInsetForText),
       sides,
     );

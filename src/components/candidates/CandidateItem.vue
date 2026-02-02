@@ -1,11 +1,11 @@
 <template>
   <q-card
+    v-ripple
     bordered
     flat
     class="candidate-item q-mb-sm cursor-pointer transition-generic"
     :class="{ 'bg-blue-1 border-primary': selected }"
     @click="$emit('select', candidate)"
-    v-ripple
   >
     <q-card-section>
       <div class="row items-center q-col-gutter-md no-wrap">
@@ -19,7 +19,7 @@
           />
         </div>
 
-        <!-- Info -->
+        <!-- Information -->
         <div class="col">
           <div class="column justify-center full-height">
             <div class="text-caption text-grey">
@@ -81,8 +81,8 @@ const props = defineProps<{
 }>();
 
 defineEmits<{
-  (e: "delete", id: string): void;
-  (e: "select", candidate: Candidate): void;
+  (event: "delete", id: string): void;
+  (event: "select", candidate: Candidate): void;
 }>();
 
 const { t } = useI18n();

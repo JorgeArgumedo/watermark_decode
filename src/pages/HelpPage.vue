@@ -6,7 +6,9 @@
 
     <q-card class="q-mb-md">
       <q-card-section>
-        <div class="text-h6">{{ t("help.overview") }}</div>
+        <div class="text-h6">
+          {{ t("help.overview") }}
+        </div>
         <p>
           Esta aplicación asiste en la identificación de personas a partir de
           marcas de agua simbólicas.
@@ -16,7 +18,9 @@
 
     <q-card class="q-mb-md">
       <q-card-section>
-        <div class="text-h6">{{ t("help.symbolSet") }}</div>
+        <div class="text-h6">
+          {{ t("help.symbolSet") }}
+        </div>
         <p>
           El sistema utiliza {{ symbolCount }} símbolos únicos para codificar
           identificadores.
