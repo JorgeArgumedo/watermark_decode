@@ -6,55 +6,63 @@
 import type { DecodeResult } from "@/types/symbol";
 
 /**
- * Convert a symbolic sequence to a numeric ID
- * @param sequence - The symbolic sequence to decode
- * @param symbolMap - Map of symbol to index
+ * Decode a symbolic sequence back into its original numeric ID
+ * @param symbolicSequence - The symbolic sequence to decode
+ * @param symbolIndexMap - Map of symbol to its position in the base set
  * @returns DecodeResult with success status and value
  */
-export function symbolsToInt(
-  sequence: string,
-  symbolMap: Map<string, number>,
+export function decodeSymbolicSequenceToId(
+  symbolicSequence: string,
+  symbolIndexMap: Map<string, number>,
 ): DecodeResult {
-  const symbolCharacters = Array.from(sequence.replace(/\s+/g, ""));
-  const base = symbolMap.size;
+  const sequenceCharacters = Array.from(symbolicSequence.replace(/\s+/g, ""));
+  const baseSize = symbolIndexMap.size;
 
-  if (base === 0) {
-    return { ok: false, error: "Empty symbol map" };
+  if (baseSize === 0) {
+    return { ok: false, error: "Empty symbol index map" };
   }
 
-  let currentValue = 0n;
+  let accumulatedIdValue = 0n;
 
-  for (let index = 0; index < symbolCharacters.length; index++) {
-    const glyph = symbolCharacters[index];
-    if (!glyph) continue; // Safety check
-    const symbolIndex = symbolMap.get(glyph);
+  for (let charIndex = 0; charIndex < sequenceCharacters.length; charIndex++) {
+    const symbolGlyph = sequenceCharacters[charIndex];
+    if (!symbolGlyph) continue; // Safety check
 
-    if (symbolIndex === undefined) {
+    const symbolValue = symbolIndexMap.get(symbolGlyph);
+
+    if (symbolValue === undefined) {
       return {
         ok: false,
-        partialIndex: index,
-        value: currentValue,
-        error: `Invalid symbol at position ${index}: ${glyph}`,
+        partialIndex: charIndex,
+        value: accumulatedIdValue,
+        error: `Invalid symbol at position ${charIndex}: ${symbolGlyph}`,
       };
     }
 
-    currentValue = currentValue * BigInt(base) + BigInt(symbolIndex);
+    accumulatedIdValue =
+      accumulatedIdValue * BigInt(baseSize) + BigInt(symbolValue);
   }
 
   return {
     ok: true,
-    value: currentValue,
-    digits: symbolCharacters.length,
+    value: accumulatedIdValue,
+    digits: sequenceCharacters.length,
   };
 }
 
 /**
- * Create a symbol map from an array of symbols
- * @param symbols - Array of symbols
+ * Create a map linking each symbol to its index in the base array
+ * @param symbolSet - Array of symbols
  * @returns Map of symbol to index
  */
-export function createSymbolMap(
-  symbols: readonly string[],
+export function createSymbolIndexMap(
+  symbolSet: readonly string[],
 ): Map<string, number> {
-  return new Map(symbols.map((symbol, index) => [symbol, index]));
+  return new Map(symbolSet.map((symbol, index) => [symbol, index]));
 }
+
+// Aliases for backward compatibility
+export {
+  decodeSymbolicSequenceToId as symbolsToInt,
+  createSymbolIndexMap as createSymbolMap,
+};

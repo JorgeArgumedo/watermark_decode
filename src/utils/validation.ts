@@ -7,72 +7,92 @@ import { countWildcards } from "./wildcard";
 
 /**
  * Validate a symbolic sequence
- * @param sequence - The sequence to validate
- * @param symbols - Valid symbols
- * @returns Validation result
+ * @param sequence - The sequence string to validate
+ * @param validSymbols - Array of allowed symbols
+ * @returns ValidationResult indicating success or specific error key
  */
-export function validateSequence(
+export function validateSymbolicSequence(
   sequence: string,
-  symbols: readonly string[],
+  validSymbols: readonly string[],
 ): ValidationResult {
-  if (!sequence || sequence.trim().length === 0) {
-    return { valid: false, error: "Sequence cannot be empty" };
+  const normalizedSequence = sequence?.trim() || "";
+
+  if (normalizedSequence.length === 0) {
+    return { valid: false, error: "errors.emptySequence" };
   }
 
-  const wildcardCount = countWildcards(sequence);
+  const activeWildcardCount = countWildcards(normalizedSequence);
 
-  if (wildcardCount > 2) {
+  if (activeWildcardCount > 2) {
     return {
       valid: false,
-      error: "Maximum 2 wildcards allowed",
-      wildcardCount,
+      error: "errors.tooManyWildcards",
+      wildcardCount: activeWildcardCount,
     };
   }
 
-  const symbolSet = new Set(symbols);
-  const chars = Array.from(sequence);
+  const allowedSymbolSet = new Set(validSymbols);
+  const sequenceCharacters = Array.from(normalizedSequence);
 
-  for (let i = 0; i < chars.length; i++) {
-    const char = chars[i];
-    if (char !== "?" && !symbolSet.has(char)) {
+  for (
+    let characterPosition = 0;
+    characterPosition < sequenceCharacters.length;
+    characterPosition++
+  ) {
+    const currentCharacter = sequenceCharacters[characterPosition] as string;
+
+    const isWildcard = currentCharacter === "?";
+    const isAllowedSymbol = allowedSymbolSet.has(currentCharacter);
+
+    if (!isWildcard && !isAllowedSymbol) {
       return {
         valid: false,
-        error: `Invalid symbol at position ${i}: ${char}`,
+        error: "errors.invalidSymbol",
       };
     }
   }
 
-  return { valid: true, wildcardCount };
+  return {
+    valid: true,
+    wildcardCount: activeWildcardCount,
+  };
 }
 
 /**
- * Validate a person ID
- * @param id - The ID to validate
- * @returns Validation result
+ * Validate a person ID (numeric string representing BigInt)
+ * @param idPersona - The numeric ID to validate
+ * @returns ValidationResult indicating success or specific error key
  */
-export function validateIdPersona(id: string): ValidationResult {
-  if (!id || id.trim().length === 0) {
-    return { valid: false, error: "ID cannot be empty" };
+export function validateIdPersona(idPersona: string): ValidationResult {
+  const normalizedId = idPersona?.trim() || "";
+
+  if (normalizedId.length === 0) {
+    return { valid: false, error: "errors.emptyId" };
   }
 
-  // Check if it's a valid number
-  if (!/^\d+$/.test(id)) {
-    return { valid: false, error: "ID must contain only digits" };
+  const isStrictlyNumeric = /^\d+$/.test(normalizedId);
+  if (!isStrictlyNumeric) {
+    return { valid: false, error: "errors.numericIdOnly" };
   }
 
-  // Check if it's within BIGINT UNSIGNED range (0 to 2^64 - 1)
   try {
-    const numericId = BigInt(id);
-    if (numericId < 0n) {
-      return { valid: false, error: "ID must be non-negative" };
+    const numericValue = BigInt(normalizedId);
+    const MAX_BIGINT_UNSIGNED = 18446744073709551615n; // 2^64 - 1
+
+    if (numericValue < 0n) {
+      return { valid: false, error: "errors.negativeId" };
     }
-    if (numericId > 18446744073709551615n) {
-      // 2^64 - 1
-      return { valid: false, error: "ID exceeds maximum value" };
+
+    if (numericValue > MAX_BIGINT_UNSIGNED) {
+      return { valid: false, error: "errors.idTooLarge" };
     }
-  } catch (error) {
-    return { valid: false, error: "Invalid number format" };
+  } catch (_conversionError) {
+    return { valid: false, error: "errors.invalidNumberFormat" };
   }
 
   return { valid: true };
 }
+
+// Re-export with original names for backward compatibility if needed,
+// though internally we used descriptive ones.
+export { validateSymbolicSequence as validateSequence };

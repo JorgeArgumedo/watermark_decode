@@ -17,16 +17,13 @@
           icon="grid_view"
           @click="showPicker = !showPicker"
         >
-          <q-tooltip>Show Symbol Picker</q-tooltip>
+          <q-tooltip>{{ t("actions.showPicker") }}</q-tooltip>
         </q-btn>
       </template>
     </q-input>
 
     <q-slide-transition>
-      <div
-        v-if="showPicker"
-        class="q-mb-md border-radius-inherit bg-grey-1"
-      >
+      <div v-if="showPicker" class="q-mb-md border-radius-inherit bg-grey-1">
         <SymbolPicker @select="onSymbolSelect" />
       </div>
     </q-slide-transition>
@@ -37,7 +34,7 @@
 import { ref, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import SymbolPicker from "@/components/common/SymbolPicker.vue";
-import { validateSequence } from "@/utils/validation";
+import { validateSymbolicSequence } from "@/utils/validation";
 import { useSymbolsStore } from "@/stores/symbols";
 
 const props = defineProps<{
@@ -71,9 +68,11 @@ watch(model, (newVal) => {
     return;
   }
 
-  const validation = validateSequence(newVal, symbolsStore.symbols);
+  const validation = validateSymbolicSequence(newVal, symbolsStore.symbols);
   if (!validation.valid) {
-    error.value = validation.error || "Invalid sequence";
+    error.value = validation.error
+      ? t(validation.error)
+      : t("errors.invalidSequence");
     emit("valid", false);
   } else {
     error.value = "";

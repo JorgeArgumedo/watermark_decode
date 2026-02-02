@@ -6,12 +6,15 @@
 import { SYMBOLS, DEFAULT_BASE } from "./symbols";
 
 /**
- * Convert a number to an array of digits in the given base
- * @param n - The number to convert (as bigint for large numbers)
+ * Convert a big integer to an array of digits in the given base
+ * @param numberToConvert - The number to convert
  * @param base - The base to use for conversion
  * @returns Array of digits (most significant first)
  */
-export function intToDigits(numberToConvert: bigint, base: number): number[] {
+export function encodeBigIntToDigits(
+  numberToConvert: bigint,
+  base: number,
+): number[] {
   if (numberToConvert < 0n) return [0];
   if (base <= 1) return [0];
   if (numberToConvert === 0n) return [0];
@@ -28,30 +31,37 @@ export function intToDigits(numberToConvert: bigint, base: number): number[] {
 }
 
 /**
- * Convert an array of digits to symbols
+ * Map an array of numeric digits to their symbolic representation
  * @param digits - Array of digit values
- * @param symbols - Symbol array to use for mapping
+ * @param symbolSet - Symbol array to use for mapping
  * @returns String of symbols
  */
-export function digitsToSymbols(
+export function mapDigitsToSymbols(
   digits: number[],
-  symbols: readonly string[],
+  symbolSet: readonly string[],
 ): string {
-  return digits.map((digit) => symbols[digit] || "?").join("");
+  return digits.map((digit) => symbolSet[digit] || "?").join("");
 }
 
 /**
- * Convert a numeric ID (as string) to a symbolic sequence
- * @param idPersona - The person ID as a string (to handle BIGINT)
- * @param symbols - Optional symbol array (defaults to SYMBOLS)
+ * Encode a numeric ID (as string) to a symbolic sequence
+ * @param targetId - The person ID as a string (to handle BIGINT)
+ * @param symbolSet - Optional symbol array (defaults to SYMBOLS)
  * @returns Symbolic sequence string
  */
-export function intToSymbolSeq(
-  idPersona: string,
-  symbols: readonly string[] = SYMBOLS,
+export function encodeIdToSymbolicSequence(
+  targetId: string,
+  symbolSet: readonly string[] = SYMBOLS,
 ): string {
-  const numberValue = BigInt(idPersona);
-  const base = symbols.length || DEFAULT_BASE;
-  const digits = intToDigits(numberValue, base);
-  return digitsToSymbols(digits, symbols);
+  const bigIntValue = BigInt(targetId);
+  const baseSize = symbolSet.length || DEFAULT_BASE;
+  const numericDigits = encodeBigIntToDigits(bigIntValue, baseSize);
+  return mapDigitsToSymbols(numericDigits, symbolSet);
 }
+
+// Aliases for backward compatibility
+export {
+  encodeBigIntToDigits as intToDigits,
+  mapDigitsToSymbols as digitsToSymbols,
+  encodeIdToSymbolicSequence as intToSymbolSeq,
+};

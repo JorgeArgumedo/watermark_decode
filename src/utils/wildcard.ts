@@ -5,64 +5,81 @@
 
 /**
  * Expand a sequence with wildcards into all possible combinations
- * @param sequence - Sequence with wildcards (?)
- * @param symbols - Array of symbols to use for expansion
+ * @param symbolicSequence - Sequence with wildcards (?)
+ * @param availableSymbols - Array of symbols to use for expansion
  * @returns Array of all possible sequences (without wildcards)
  */
 export function expandWildcards(
-  sequence: string,
-  symbols: readonly string[],
+  symbolicSequence: string,
+  availableSymbols: readonly string[],
 ): string[] {
-  const wildcardCount = countWildcards(sequence);
+  const activeWildcardCount = countWildcards(symbolicSequence);
 
-  if (wildcardCount === 0) {
-    return [sequence];
+  if (activeWildcardCount === 0) {
+    return [symbolicSequence];
   }
 
-  if (wildcardCount > 2) {
-    throw new Error("Maximum 2 wildcards allowed");
+  const MAX_ALLOWED_WILDCARDS = 2;
+  if (activeWildcardCount > MAX_ALLOWED_WILDCARDS) {
+    throw new Error(
+      `Maximum ${MAX_ALLOWED_WILDCARDS} wildcards allowed for expansion.`,
+    );
   }
 
-  const sequenceCharacters = Array.from(sequence);
+  const baseCharacters = Array.from(symbolicSequence);
   const wildcardPositions: number[] = [];
 
-  // Find wildcard positions
-  sequenceCharacters.forEach((character, index) => {
+  // Track the indices of all wildcard characters
+  baseCharacters.forEach((character, index) => {
     if (character === "?") {
       wildcardPositions.push(index);
     }
   });
 
   const expandedSequences: string[] = [];
-  const symbolCount = symbols.length;
-  if (symbolCount === 0) return [];
+  const symbolSetSize = availableSymbols.length;
 
-  const totalCombinations = Math.pow(symbolCount, wildcardCount);
+  if (symbolSetSize === 0) {
+    return [];
+  }
 
-  // Generate all combinations
+  // Total combinations is symbol_count ^ wildcard_count
+  const totalExpansionCombinations = Math.pow(
+    symbolSetSize,
+    activeWildcardCount,
+  );
+
+  // Generate each unique combination
   for (
     let combinationIndex = 0;
-    combinationIndex < totalCombinations;
+    combinationIndex < totalExpansionCombinations;
     combinationIndex++
   ) {
-    const currentCombinationCharacters = [...sequenceCharacters];
-    let temporaryCombinationIndex = combinationIndex;
+    const sequenceUnderExpansion = [...baseCharacters];
+    let remainingCombinationValue = combinationIndex;
 
-    // Replace each wildcard with the appropriate symbol
+    /**
+     * Replace each wildcard position with a symbol derived from the current combinationIndex.
+     * We iterate backwards through positions to maintain a consistent mapping (like base-N conversion).
+     */
     for (
-      let wildcardPosIndex = wildcardPositions.length - 1;
-      wildcardPosIndex >= 0;
-      wildcardPosIndex--
+      let positionIndex = wildcardPositions.length - 1;
+      positionIndex >= 0;
+      positionIndex--
     ) {
-      const symbolIndex = temporaryCombinationIndex % symbolCount;
-      currentCombinationCharacters[wildcardPositions[wildcardPosIndex]] =
-        symbols[symbolIndex];
-      temporaryCombinationIndex = Math.floor(
-        temporaryCombinationIndex / symbolCount,
+      const symbolLookupIndex = remainingCombinationValue % symbolSetSize;
+      const targetStringIndex = wildcardPositions[positionIndex] as number;
+
+      sequenceUnderExpansion[targetStringIndex] = availableSymbols[
+        symbolLookupIndex
+      ] as string;
+
+      remainingCombinationValue = Math.floor(
+        remainingCombinationValue / symbolSetSize,
       );
     }
 
-    expandedSequences.push(currentCombinationCharacters.join(""));
+    expandedSequences.push(sequenceUnderExpansion.join(""));
   }
 
   return expandedSequences;
@@ -70,9 +87,10 @@ export function expandWildcards(
 
 /**
  * Count the number of wildcards in a sequence
- * @param sequence - The sequence to check
- * @returns Number of wildcards
+ * @param sequence - The sequence string to check
+ * @returns Number of wildcards found
  */
 export function countWildcards(sequence: string): number {
-  return (sequence.match(/\?/g) || []).length;
+  const wildcardMatch = sequence.match(/\?/g);
+  return wildcardMatch ? wildcardMatch.length : 0;
 }

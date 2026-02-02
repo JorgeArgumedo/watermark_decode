@@ -1,27 +1,20 @@
 <template>
-  <div
-    ref="detailWrapper"
-    class="candidate-detail-wrapper full-height"
-  >
-    <q-card
-      bordered
-      flat
-      class="candidate-detail bg-white full-height column"
-    >
+  <div ref="detailWrapper" class="candidate-detail-wrapper full-height">
+    <q-card bordered flat class="candidate-detail bg-white full-height column">
       <q-card-section class="col overflow-auto">
         <div class="text-h6 q-mb-md">
           {{ t("analysis.candidateDetails") }}
         </div>
 
         <!-- Details List -->
-        <q-list
-          separator
-          dense
-        >
+        <q-list separator dense>
           <q-item>
+            <q-item-section avatar>
+              <q-icon name="fingerprint" color="primary" />
+            </q-item-section>
             <q-item-section>
               <q-item-label caption>
-                ID
+                {{ t("common.id") }}
               </q-item-label>
               <q-item-label class="text-h6">
                 {{ candidate.idPersona }}
@@ -35,10 +28,7 @@
                 {{ t("analysis.inputSequence") }}
               </q-item-label>
               <div class="q-py-sm">
-                <HorizontalSymbols
-                  :sequence="candidate.sequence"
-                  size="lg"
-                />
+                <HorizontalSymbols :sequence="candidate.sequence" size="lg" />
               </div>
             </q-item-section>
           </q-item>
@@ -53,7 +43,7 @@
                   dense
                   :color="statusColor"
                   text-color="white"
-                  icon="dns"
+                  :icon="systemIcon"
                 >
                   {{ t(`status.${candidate.systemStatus}`) }}
                 </q-chip>
@@ -71,7 +61,7 @@
                   dense
                   :color="analysisColor"
                   text-color="white"
-                  icon="rate_review"
+                  :icon="analysisIcon"
                 >
                   {{ t(`status.${candidate.analysisStatus}`) }}
                 </q-chip>
@@ -85,7 +75,7 @@
           <q-btn
             color="positive"
             :label="t('actions.approve')"
-            icon="check"
+            icon="thumb_up"
             :disable="candidate.analysisStatus === 'approved'"
             @click="updateStatus('approved')"
           />
@@ -109,6 +99,10 @@ import type { Candidate, AnalysisStatus } from "@/types/candidate";
 import HorizontalSymbols from "@/components/symbolic/HorizontalSymbols.vue";
 import { useCandidatesStore } from "@/stores/candidates";
 import { useSymbolicBorderRenderer } from "@/composables/useSymbolicBorderRenderer";
+import {
+  SYSTEM_STATUS_OPTIONS,
+  ANALYSIS_STATUS_OPTIONS,
+} from "@/constants/status";
 
 const props = defineProps<{
   candidate: Candidate;
@@ -118,6 +112,34 @@ const { t } = useI18n();
 const candidatesStore = useCandidatesStore();
 const { renderBorder } = useSymbolicBorderRenderer();
 const detailWrapper = ref<HTMLElement | null>(null);
+
+const systemStatusInfo = computed(() => {
+  return (
+    SYSTEM_STATUS_OPTIONS.find(
+      (statusOption) => statusOption.value === props.candidate.systemStatus,
+    ) || {
+      icon: "help",
+      color: "grey",
+    }
+  );
+});
+
+const analysisStatusInfo = computed(() => {
+  return (
+    ANALYSIS_STATUS_OPTIONS.find(
+      (statusOption) => statusOption.value === props.candidate.analysisStatus,
+    ) || {
+      icon: "help",
+      color: "info",
+    }
+  );
+});
+
+const systemIcon = computed(() => systemStatusInfo.value.icon);
+const statusColor = computed(() => systemStatusInfo.value.color);
+
+const analysisIcon = computed(() => analysisStatusInfo.value.icon);
+const analysisColor = computed(() => analysisStatusInfo.value.color);
 
 const drawBorder = () => {
   if (detailWrapper.value) {
@@ -148,30 +170,6 @@ watch(
     setTimeout(drawBorder, 50);
   },
 );
-
-const statusColor = computed(() => {
-  switch (props.candidate.systemStatus) {
-    case "found":
-      return "positive";
-    case "not_found":
-      return "warning";
-    case "error":
-      return "negative";
-    default:
-      return "grey";
-  }
-});
-
-const analysisColor = computed(() => {
-  switch (props.candidate.analysisStatus) {
-    case "approved":
-      return "positive";
-    case "excluded":
-      return "negative";
-    default:
-      return "info";
-  }
-});
 
 const updateStatus = (status: AnalysisStatus) => {
   candidatesStore.updateCandidateStatus(props.candidate.id, {

@@ -1,4 +1,4 @@
-import { intToSymbolSeq } from "@/utils/encoding";
+import { encodeIdToSymbolicSequence } from "@/utils/encoding";
 import { SYMBOLS, DEFAULT_BASE } from "@/utils/symbols";
 import { buildSidePath, parsePixels, formatCoordinate } from "@/utils/border";
 
@@ -208,9 +208,12 @@ export function useSymbolicBorderRenderer() {
         'path[id^="_sb_center"]',
       ) as SVGPathElement;
       bandPath = svg.querySelectorAll("path")[1] as SVGPathElement;
-      const texts = svg.querySelectorAll("text");
-      sepTextPath = texts[0].querySelector("textPath") as SVGTextPathElement;
-      symTextPath = texts[1].querySelector("textPath") as SVGTextPathElement;
+      const textElements = Array.from(svg.querySelectorAll("text"));
+      const firstTextPath = textElements[0]?.querySelector("textPath");
+      const secondTextPath = textElements[1]?.querySelector("textPath");
+
+      if (firstTextPath) sepTextPath = firstTextPath as SVGTextPathElement;
+      if (secondTextPath) symTextPath = secondTextPath as SVGTextPathElement;
     }
 
     // 3. Ensure Padding
@@ -362,8 +365,12 @@ export function useSymbolicBorderRenderer() {
     // TEXT GENERATION
     // Convert number to symbols
     const numberStr = String(number);
-    const symbolSeq = intToSymbolSeq(numberStr, symbolsArray);
-    const unitText = sepPos === "inline" ? separator + symbolSeq : symbolSeq;
+    const symbolicSequence = encodeIdToSymbolicSequence(
+      numberStr,
+      symbolsArray,
+    );
+    const unitText =
+      sepPos === "inline" ? separator + symbolicSequence : symbolicSequence;
 
     // Repeat logic
     // We need path length. In Vue/JSdom this might be tricky if not rendered.
@@ -398,8 +405,8 @@ export function useSymbolicBorderRenderer() {
 
     // Metadata
     symTextPath.dataset.digits = String(
-      intToSymbolSeq(numberStr, symbolsArray).length,
-    ); // wait, intToSymbolSeq returns str, length is chars. intToDigits returns array.
+      encodeIdToSymbolicSequence(numberStr, symbolsArray).length,
+    ); // encodeIdToSymbolicSequence returns str, length is chars.
     // Original used intToDigits(number, base).length.
     // intToSymbolSeq returns correct sequence length.
 

@@ -8,31 +8,52 @@ import type {
   Candidate,
   SystemStatus,
   AnalysisStatus,
+  CandidateSource,
 } from "@/types/candidate";
 import { expandWildcards } from "@/utils/wildcard";
-import { symbolsToInt } from "@/utils/decoding";
+import { decodeSymbolicSequenceToId } from "@/utils/decoding";
 import { useSymbolsStore } from "@/stores/symbols";
 
 export const useCandidatesStore = defineStore("candidates", () => {
   const symbolsStore = useSymbolsStore();
+
   // State
   const candidates = ref<Candidate[]>([]);
 
   // Getters
   const totalCount = computed(() => candidates.value.length);
 
-  const candidatesBySystemStatus = computed(() => {
+  /**
+   * Factory function to create a new candidate object
+   */
+  const createCandidateNode = (
+    idPersona: string,
+    sequence: string,
+    source: CandidateSource,
+  ): Candidate => ({
+    id: idPersona, // Using idPersona as the primary unique identifier
+    idPersona,
+    sequence,
+    systemStatus: "pending",
+    analysisStatus: "unreviewed",
+    source,
+    createdAt: new Date(),
+  });
+
+  // Filters (Getters that return functions for dynamic filtering)
+  const getCandidatesBySystemStatus = computed(() => {
     return (status: SystemStatus) =>
       candidates.value.filter((candidate) => candidate.systemStatus === status);
   });
 
-  const candidatesByAnalysisStatus = computed(() => {
+  const getCandidatesByAnalysisStatus = computed(() => {
     return (status: AnalysisStatus) =>
       candidates.value.filter(
         (candidate) => candidate.analysisStatus === status,
       );
   });
 
+  // Pre-computed common filters
   const pendingCandidates = computed(() =>
     candidates.value.filter(
       (candidate) => candidate.systemStatus === "pending",
@@ -50,121 +71,117 @@ export const useCandidatesStore = defineStore("candidates", () => {
   );
 
   // Actions
-  function addCandidate(candidate: Candidate) {
-    // Check for duplicates by idPersona
-    // Optimization: findIndex is O(N), but for single item it's okay.
-    // Ideally we maintain a Set of IDs for O(1) checks.
-    const exists = candidates.value.some(
-      (existingCandidate) =>
-        existingCandidate.idPersona === candidate.idPersona,
+  function addCandidate(newCandidate: Candidate) {
+    const isAlreadyRegistered = candidates.value.some(
+      (existing) => existing.idPersona === newCandidate.idPersona,
     );
-    if (!exists) {
-      candidates.value.push(candidate);
+
+    if (!isAlreadyRegistered) {
+      candidates.value.push(newCandidate);
     }
   }
 
-  function addCandidates(newCandidates: Candidate[]) {
-    // Optimization: Bulk add with Set lookup
+  function addCandidates(candidatesToRegister: Candidate[]) {
     const existingIds = new Set(
       candidates.value.map((candidate) => candidate.idPersona),
     );
-    const toAdd = newCandidates.filter(
+
+    const uniqueNewCandidates = candidatesToRegister.filter(
       (candidate) => !existingIds.has(candidate.idPersona),
     );
 
-    if (toAdd.length > 0) {
-      candidates.value.push(...toAdd);
+    if (uniqueNewCandidates.length > 0) {
+      candidates.value.push(...uniqueNewCandidates);
     }
   }
 
-  function removeCandidate(id: string) {
-    const index = candidates.value.findIndex(
-      (candidate) => candidate.id === id,
+  function removeCandidateById(candidateId: string) {
+    const targetIndex = candidates.value.findIndex(
+      (candidate) => candidate.id === candidateId,
     );
-    if (index !== -1) {
-      candidates.value.splice(index, 1);
+
+    if (targetIndex !== -1) {
+      candidates.value.splice(targetIndex, 1);
     }
   }
 
-  function removeCandidatesBySystemStatus(status: SystemStatus) {
+  function removeAllCandidatesBySystemStatus(status: SystemStatus) {
     candidates.value = candidates.value.filter(
       (candidate) => candidate.systemStatus !== status,
     );
   }
 
-  function removeCandidatesByAnalysisStatus(status: AnalysisStatus) {
+  function removeAllCandidatesByAnalysisStatus(status: AnalysisStatus) {
     candidates.value = candidates.value.filter(
       (candidate) => candidate.analysisStatus !== status,
     );
   }
 
   function updateCandidateStatus(
-    id: string,
-    status: Partial<Pick<Candidate, "systemStatus" | "analysisStatus">>,
+    candidateId: string,
+    statusUpdates: Partial<Pick<Candidate, "systemStatus" | "analysisStatus">>,
   ) {
-    const candidate = candidates.value.find((candidate) => candidate.id === id);
-    if (candidate) {
-      if (status.systemStatus !== undefined) {
-        candidate.systemStatus = status.systemStatus;
-        candidate.validatedAt = new Date();
+    const targetCandidate = candidates.value.find((c) => c.id === candidateId);
+
+    if (targetCandidate) {
+      if (statusUpdates.systemStatus !== undefined) {
+        targetCandidate.systemStatus = statusUpdates.systemStatus;
+        targetCandidate.validatedAt = new Date();
       }
-      if (status.analysisStatus !== undefined) {
-        candidate.analysisStatus = status.analysisStatus;
+      if (statusUpdates.analysisStatus !== undefined) {
+        targetCandidate.analysisStatus = statusUpdates.analysisStatus;
       }
     }
   }
 
-  function clearAll() {
+  function clearAllCandidates() {
     candidates.value = [];
   }
 
-  function getCandidateById(id: string): Candidate | undefined {
-    return candidates.value.find((candidate) => candidate.id === id);
+  function findCandidateById(candidateId: string): Candidate | undefined {
+    return candidates.value.find((candidate) => candidate.id === candidateId);
   }
 
-  const createCandidate = (
-    idPersona: string,
-    sequence: string,
-    source: "manual" | "expanded",
-  ): Candidate => ({
-    id: idPersona, // Use idPersona as unique ID
-    idPersona,
-    sequence,
-    systemStatus: "pending",
-    analysisStatus: "unreviewed",
-    source,
-    createdAt: new Date(),
-  });
-
+  /**
+   * Core business logic: Expand wildcards and generate candidate entities
+   */
   async function generateCandidatesFromSequence(
-    sequence: string,
+    symbolicSequence: string,
   ): Promise<number> {
-    // Artificial delay to allow UI to update if synchronous blocking occurs
+    // Artificial delay for UI responsiveness
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    const expanded = expandWildcards(sequence, symbolsStore.symbols);
-    const newCandidates: Candidate[] = [];
+    const expandedSequences = expandWildcards(
+      symbolicSequence,
+      symbolsStore.symbols,
+    );
+    const successfullyGeneratedCandidates: Candidate[] = [];
 
-    expanded.forEach((seq) => {
-      const decodeResult = symbolsToInt(seq, symbolsStore.symbolMap);
-      if (decodeResult.ok && decodeResult.value !== undefined) {
-        newCandidates.push(
-          createCandidate(
-            String(decodeResult.value),
-            seq,
-            expanded.length > 1 ? "expanded" : "manual",
-          ),
+    expandedSequences.forEach((sequence) => {
+      const decodingResult = decodeSymbolicSequenceToId(
+        sequence,
+        symbolsStore.symbolIndexMap,
+      );
+
+      if (decodingResult.ok && decodingResult.value !== undefined) {
+        const source: CandidateSource =
+          expandedSequences.length > 1 ? "expanded" : "manual";
+        successfullyGeneratedCandidates.push(
+          createCandidateNode(String(decodingResult.value), sequence, source),
         );
       } else {
-        console.warn(`Failed to decode sequence ${seq}:`, decodeResult.error);
+        console.warn(
+          `Failed to decode sequence ${sequence}:`,
+          decodingResult.error,
+        );
       }
     });
 
-    if (newCandidates.length > 0) {
-      addCandidates(newCandidates);
+    if (successfullyGeneratedCandidates.length > 0) {
+      addCandidates(successfullyGeneratedCandidates);
     }
 
-    return newCandidates.length;
+    return successfullyGeneratedCandidates.length;
   }
 
   return {
@@ -172,21 +189,28 @@ export const useCandidatesStore = defineStore("candidates", () => {
     candidates,
     // Getters
     totalCount,
-    candidatesBySystemStatus,
-    candidatesByAnalysisStatus,
+    getCandidatesBySystemStatus,
+    getCandidatesByAnalysisStatus,
     pendingCandidates,
     foundCandidates,
     unreviewedCandidates,
     // Actions
     addCandidate,
     addCandidates,
-    removeCandidate,
-    removeCandidatesBySystemStatus,
-    removeCandidatesByAnalysisStatus,
+    removeCandidateById,
+    removeAllCandidatesBySystemStatus,
+    removeAllCandidatesByAnalysisStatus,
     updateCandidateStatus,
-    clearAll,
-    getCandidateById,
+    clearAllCandidates,
+    findCandidateById,
     generateCandidatesFromSequence,
-    createCandidate,
+    createCandidateNode,
+    // Aliases for backward compatibility
+    removeCandidate: removeCandidateById,
+    removeCandidatesBySystemStatus: removeAllCandidatesBySystemStatus,
+    removeCandidatesByAnalysisStatus: removeAllCandidatesByAnalysisStatus,
+    clearAll: clearAllCandidates,
+    getCandidateById: findCandidateById,
+    createCandidate: createCandidateNode,
   };
 });

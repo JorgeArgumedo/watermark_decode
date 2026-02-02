@@ -10,14 +10,11 @@
           leave-active-class="animated fadeOut"
           mode="out-in"
         >
-          <div
-            v-if="selectedCandidate"
-            key="detail"
-          >
+          <div v-if="selectedCandidate" key="detail">
             <q-btn
               flat
               icon="arrow_back"
-              label="Volver"
+              :label="t('common.back')"
               class="q-mb-sm"
               @click="selectedCandidate = null"
             />
@@ -25,10 +22,7 @@
           </div>
 
           <!-- Input View -->
-          <div
-            v-else
-            key="input"
-          >
+          <div v-else key="input">
             <q-card class="q-mb-md">
               <q-card-section>
                 <div class="text-h6 q-mb-md">
@@ -67,7 +61,7 @@ import CandidateList from "@/components/candidates/CandidateList.vue";
 import CandidateDetail from "@/components/candidates/CandidateDetail.vue";
 import { useCandidatesStore } from "@/stores/candidates";
 import { useSymbolsStore } from "@/stores/symbols";
-import { intToSymbolSeq } from "@/utils/encoding";
+import { encodeIdToSymbolicSequence } from "@/utils/encoding";
 import { useQuasar } from "quasar";
 
 import type { Candidate } from "@/types/candidate";
@@ -83,36 +77,35 @@ const onCandidateSelect = (candidate: Candidate) => {
   selectedCandidate.value = candidate;
 };
 
-// Simplified logic adhering to SRP: Logic delegated to store
-// createCandidate removed as it was unused
-
-const handleSequenceSubmit = async (sequence: string) => {
-  const loading = $q.notify({
+const handleSequenceSubmit = async (symbolicSequence: string) => {
+  const loadingNotification = $q.notify({
     group: false,
     timeout: 0,
     spinner: true,
-    message: "Generating candidates...",
-    caption: "Please wait",
+    message: t("analysis.generatingCandidates"),
+    caption: t("common.pleaseWait"),
   });
 
   try {
-    const count =
-      await candidatesStore.generateCandidatesFromSequence(sequence);
+    const newlyGeneratedCandidatesCount =
+      await candidatesStore.generateCandidatesFromSequence(symbolicSequence);
 
-    if (count > 0) {
-      loading({
+    if (newlyGeneratedCandidatesCount > 0) {
+      loadingNotification({
         icon: "done",
         spinner: false,
-        message: "Candidates generated!",
-        caption: `Added ${count} candidates`,
+        message: t("analysis.candidatesGenerated"),
+        caption: t("analysis.addedCount", {
+          count: newlyGeneratedCandidatesCount,
+        }),
         timeout: 2500,
         color: "positive",
       });
     } else {
-      loading({
+      loadingNotification({
         icon: "warning",
         spinner: false,
-        message: "No candidates generated",
+        message: t("analysis.noCandidatesGenerated"),
         timeout: 2500,
         color: "warning",
       });
@@ -120,11 +113,11 @@ const handleSequenceSubmit = async (sequence: string) => {
   } catch (error) {
     console.error("Error processing sequence:", error);
     const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
-    loading({
+      error instanceof Error ? error.message : t("errors.unknownError");
+    loadingNotification({
       icon: "error",
       spinner: false,
-      message: "Error generating candidates",
+      message: t("errors.errorGenerating"),
       caption: errorMessage,
       timeout: 2500,
       color: "negative",
@@ -132,15 +125,18 @@ const handleSequenceSubmit = async (sequence: string) => {
   }
 };
 
-const handleIdSubmit = (idPersona: string) => {
+const handleIdSubmit = (targetPersonaId: string) => {
   try {
-    const sequence = intToSymbolSeq(idPersona, symbolsStore.symbols);
-    const candidate = candidatesStore.createCandidate(
-      idPersona,
-      sequence,
+    const generatedSequence = encodeIdToSymbolicSequence(
+      targetPersonaId,
+      symbolsStore.symbols,
+    );
+    const newCandidate = candidatesStore.createCandidateNode(
+      targetPersonaId,
+      generatedSequence,
       "manual",
     );
-    candidatesStore.addCandidate(candidate);
+    candidatesStore.addCandidate(newCandidate);
   } catch (error) {
     console.error("Error processing ID:", error);
   }

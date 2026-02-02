@@ -25,6 +25,12 @@ El proyecto sigue una arquitectura modular basada en componentes y el patrón de
     - Los componentes están organizados por dominio (`candidates`, `input`, `common`).
     - El código es altamente reutilizable y testable.
 
+4.  **Patrón Store vs Composable (Data Layer vs View Layer)**:
+    - **Global Data (Store)**: Se usa Pinia (`stores/`) para datos que deben persistir o compartirse globalmente. _Ejemplo_: La lista maestra de candidatos y las acciones de borrado permanente.
+    - **Local State Logic (Composable)**: Se usa Composables (`composables/`) para lógica de estado compleja pero específica de una vista o UI.
+      - _Caso de Estudio_: `useCandidateFilter`. Contiene la lógica de filtrado visual (qué ver) y el estado de los filtros (qué botones están activos).
+      - **¿Por qué?**: Si moviéramos la lógica de filtrado visual (`selectedFilters`) al Store, estaríamos contaminando el estado global con detalles específicos de una vista. Si mañana quisieras tener dos listas de candidatos en la misma pantalla filtradas de forma distinta, no podrías hacerlo si el filtro fuera global. Al usar un composable, cada componente puede tener su propio estado de filtrado independiente.
+
 ---
 
 ## 🛠 Stack Tecnológico

@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { intToSymbolSeq } from "@/utils/encoding";
+import { encodeIdToSymbolicSequence } from "@/utils/encoding";
 
 const { t } = useI18n();
 
@@ -31,11 +31,11 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const sequence = computed(() => {
+const symbolicSequence = computed(() => {
   if (props.sequence) return props.sequence;
   if (props.idPersona) {
     try {
-      return intToSymbolSeq(props.idPersona);
+      return encodeIdToSymbolicSequence(props.idPersona);
     } catch (e) {
       return "?";
     }
@@ -43,7 +43,7 @@ const sequence = computed(() => {
   return "";
 });
 
-const sequenceArray = computed(() => Array.from(sequence.value));
+const sequenceArray = computed(() => Array.from(symbolicSequence.value));
 
 const isWildcard = (symbol: string) => symbol === "?";
 </script>

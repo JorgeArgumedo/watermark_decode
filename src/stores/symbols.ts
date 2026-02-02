@@ -5,7 +5,7 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { SYMBOLS, DEFAULT_BASE } from "@/utils/symbols";
-import { createSymbolMap } from "@/utils/decoding";
+import { createSymbolIndexMap } from "@/utils/decoding";
 
 export const useSymbolsStore = defineStore("symbols", () => {
   // State
@@ -14,14 +14,14 @@ export const useSymbolsStore = defineStore("symbols", () => {
   // Getters
   const base = computed(() => symbols.value.length || DEFAULT_BASE);
 
-  const symbolMap = computed(() => createSymbolMap(symbols.value));
+  const symbolIndexMap = computed(() => createSymbolIndexMap(symbols.value));
 
   const getSymbolIndex = (symbol: string): number | undefined => {
-    return symbolMap.value.get(symbol);
+    return symbolIndexMap.value.get(symbol);
   };
 
   const isValidSymbol = (symbol: string): boolean => {
-    return symbolMap.value.has(symbol);
+    return symbolIndexMap.value.has(symbol);
   };
 
   // Actions
@@ -37,10 +37,12 @@ export const useSymbolsStore = defineStore("symbols", () => {
     symbols,
     // Getters
     base,
-    symbolMap,
+    symbolIndexMap,
     getSymbolIndex,
     isValidSymbol,
     // Actions
     setSymbols,
+    // Aliases for backward compatibility
+    symbolMap: symbolIndexMap,
   };
 });

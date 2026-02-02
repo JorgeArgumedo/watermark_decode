@@ -23,7 +23,7 @@
         <div class="col">
           <div class="column justify-center full-height">
             <div class="text-caption text-grey">
-              ID: {{ candidate.idPersona }}
+              {{ t("common.id") }}: {{ candidate.idPersona }}
             </div>
             <HorizontalSymbols :sequence="candidate.sequence" />
 
@@ -32,7 +32,7 @@
                 dense
                 :color="statusColor"
                 text-color="white"
-                icon="dns"
+                :icon="systemIcon"
                 size="sm"
               >
                 {{ t(`status.${candidate.systemStatus}`) }}
@@ -42,7 +42,7 @@
                 dense
                 :color="analysisColor"
                 text-color="white"
-                icon="rate_review"
+                :icon="analysisIcon"
                 size="sm"
               >
                 {{ t(`status.${candidate.analysisStatus}`) }}
@@ -74,6 +74,10 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import type { Candidate } from "@/types/candidate";
 import HorizontalSymbols from "@/components/symbolic/HorizontalSymbols.vue";
+import {
+  SYSTEM_STATUS_OPTIONS,
+  ANALYSIS_STATUS_OPTIONS,
+} from "@/constants/status";
 
 const props = defineProps<{
   candidate: Candidate;
@@ -87,29 +91,33 @@ defineEmits<{
 
 const { t } = useI18n();
 
-const statusColor = computed(() => {
-  switch (props.candidate.systemStatus) {
-    case "found":
-      return "positive";
-    case "not_found":
-      return "warning";
-    case "error":
-      return "negative";
-    default:
-      return "grey";
-  }
+const systemStatusInfo = computed(() => {
+  return (
+    SYSTEM_STATUS_OPTIONS.find(
+      (statusOption) => statusOption.value === props.candidate.systemStatus,
+    ) || {
+      icon: "help",
+      color: "grey",
+    }
+  );
 });
 
-const analysisColor = computed(() => {
-  switch (props.candidate.analysisStatus) {
-    case "approved":
-      return "positive";
-    case "excluded":
-      return "negative";
-    default:
-      return "info";
-  }
+const analysisStatusInfo = computed(() => {
+  return (
+    ANALYSIS_STATUS_OPTIONS.find(
+      (statusOption) => statusOption.value === props.candidate.analysisStatus,
+    ) || {
+      icon: "help",
+      color: "info",
+    }
+  );
 });
+
+const systemIcon = computed(() => systemStatusInfo.value.icon);
+const statusColor = computed(() => systemStatusInfo.value.color);
+
+const analysisIcon = computed(() => analysisStatusInfo.value.icon);
+const analysisColor = computed(() => analysisStatusInfo.value.color);
 </script>
 
 <style scoped>

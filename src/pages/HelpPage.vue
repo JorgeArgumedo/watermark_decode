@@ -1,7 +1,17 @@
 <template>
   <q-page class="q-pa-md">
-    <div class="text-h4 q-mb-md">
-      {{ t("help.title") }}
+    <div class="row items-center q-mb-md">
+      <q-btn
+        flat
+        round
+        dense
+        icon="arrow_back"
+        class="q-mr-sm"
+        @click="$router.back()"
+      />
+      <div class="text-h4">
+        {{ t("help.title") }}
+      </div>
     </div>
 
     <q-card class="q-mb-md">
@@ -10,8 +20,7 @@
           {{ t("help.overview") }}
         </div>
         <p>
-          Esta aplicación asiste en la identificación de personas a partir de
-          marcas de agua simbólicas.
+          {{ t("help.overviewDetail") }}
         </p>
       </q-card-section>
     </q-card>
@@ -22,8 +31,7 @@
           {{ t("help.symbolSet") }}
         </div>
         <p>
-          El sistema utiliza {{ symbolCount }} símbolos únicos para codificar
-          identificadores.
+          {{ t("help.symbolSetDetail", { count: symbolCount }) }}
         </p>
       </q-card-section>
     </q-card>

@@ -8,7 +8,7 @@
       :error="!!error"
       :error-message="error"
       class="q-mb-sm"
-      hint="Numeric ID only"
+      :hint="t('errors.numericIdOnly')"
     />
   </div>
 </template>
@@ -44,7 +44,9 @@ watch(model, (newVal) => {
 
   const validation = validateIdPersona(newVal);
   if (!validation.valid) {
-    error.value = validation.error || "Invalid ID";
+    error.value = validation.error
+      ? t(validation.error)
+      : t("errors.invalidId");
     emit("valid", false);
   } else {
     error.value = "";
