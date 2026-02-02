@@ -41,7 +41,7 @@ const symbolsStore = useSymbolsStore();
 const symbols = computed(() => symbolsStore.symbols);
 
 defineEmits<{
-  (e: "select", symbol: string): void;
+  (event: "select", symbol: string): void;
 }>();
 </script>
 

@@ -11,17 +11,17 @@ import { SYMBOLS, DEFAULT_BASE } from "./symbols";
  * @param base - The base to use for conversion
  * @returns Array of digits (most significant first)
  */
-export function intToDigits(n: bigint, base: number): number[] {
-  if (n < 0n) return [0];
+export function intToDigits(numberToConvert: bigint, base: number): number[] {
+  if (numberToConvert < 0n) return [0];
   if (base <= 1) return [0];
-  if (n === 0n) return [0];
+  if (numberToConvert === 0n) return [0];
 
   const digits: number[] = [];
-  let remaining = n;
+  let remainingValue = numberToConvert;
 
-  while (remaining > 0n) {
-    digits.push(Number(remaining % BigInt(base)));
-    remaining = remaining / BigInt(base);
+  while (remainingValue > 0n) {
+    digits.push(Number(remainingValue % BigInt(base)));
+    remainingValue = remainingValue / BigInt(base);
   }
 
   return digits.reverse();
@@ -37,7 +37,7 @@ export function digitsToSymbols(
   digits: number[],
   symbols: readonly string[],
 ): string {
-  return digits.map((d) => symbols[d] || "?").join("");
+  return digits.map((digit) => symbols[digit] || "?").join("");
 }
 
 /**
@@ -50,8 +50,8 @@ export function intToSymbolSeq(
   idPersona: string,
   symbols: readonly string[] = SYMBOLS,
 ): string {
-  const n = BigInt(idPersona);
+  const numberValue = BigInt(idPersona);
   const base = symbols.length || DEFAULT_BASE;
-  const digits = intToDigits(n, base);
+  const digits = intToDigits(numberValue, base);
   return digitsToSymbols(digits, symbols);
 }

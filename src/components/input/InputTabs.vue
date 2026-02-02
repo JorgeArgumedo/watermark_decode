@@ -65,8 +65,8 @@ const isSequenceValid = ref(false);
 const isIdValid = ref(false);
 
 const emit = defineEmits<{
-  (e: "submit-sequence", value: string): void;
-  (e: "submit-id", value: string): void;
+  (event: "submit-sequence", value: string): void;
+  (event: "submit-id", value: string): void;
 }>();
 
 const isWildcardMode = computed(() => countWildcards(sequenceValue.value) > 0);

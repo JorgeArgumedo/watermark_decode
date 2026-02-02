@@ -1,5 +1,167 @@
-# Vue 3 + TypeScript + Vite
+# Markwater Decode
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+**SPA de Identificación de Personas mediante Codificación Simbólica**
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+Este proyecto es una aplicación de una sola página (SPA) desarrollada con Vue 3, diseñada para asistir en la identificación de personas a partir de marcas de agua simbólicas. Actúa como una herramienta crítica de análisis y verificación en entornos productivos, permitiendo decodificar secuencias de símbolos en identificadores únicos (`idPersona`) y viceversa.
+
+---
+
+## 🏗 Arquitectura y Diseño
+
+El proyecto sigue una arquitectura modular basada en componentes y el patrón de gestión de estado centralizado (Store Pattern), con un fuerte énfasis en los principios **SOLID** y **Clean Code**.
+
+### Decisiones Arquitectónicas Clave
+
+1.  **Separación de Responsabilidades (SRP)**:
+    - **Vista (Components)**: Responsable únicamente de la presentación y la captura de eventos de usuario. No contiene lógica de negocio compleja.
+    - **Estado (Stores)**: Gestiona la lógica de negocio, el estado de la aplicación y la comunicación con servicios externos. Ejemplo: `candidates.ts` maneja la generación y filtrado de candidatos.
+    - **Utilidades Puras (Utils)**: Lógica algorítmica aislada, libre de efectos secundarios y dependencias de UI. Ejemplo: `border.ts` calcula geometría pura, `wildcard.ts` maneja la expansión de combinaciones.
+
+2.  **Clean Code**:
+    - **Nombres Descriptivos**: Se prohíbe el uso de variables de una sola letra (excepto en contextos matemáticos estándar muy acotados). Todo nombre debe revelar su intención (ej. `candidate` en lugar de `c`, `symbolIndex` en lugar de `i`).
+    - **Funciones Pequeñas**: Las funciones hacen una sola cosa y la hacen bien.
+
+3.  **Modularidad**:
+    - Los componentes están organizados por dominio (`candidates`, `input`, `common`).
+    - El código es altamente reutilizable y testable.
+
+---
+
+## 🛠 Stack Tecnológico
+
+- **Framework**: [Vue 3](https://vuejs.org/) (Composition API, `<script setup>`)
+- **Lenguaje**: [TypeScript](https://www.typescriptlang.org/) (Tipado estricto)
+- **Build Tool**: [Vite](https://vitejs.dev/)
+- **UI Framework**: [Quasar](https://quasar.dev/)
+- **Gestión de Estado**: [Pinia](https://pinia.vuejs.org/)
+- **Internacionalización**: [Vue I18n](https://kazupon.github.io/vue-i18n/)
+- **Testing**: [Vitest](https://vitest.dev/)
+- **Linter**: ESLint + Prettier
+
+---
+
+## 📂 Estructura del Proyecto
+
+```
+src/
+├── assets/          # Recursos estáticos (imágenes, estilos globales)
+├── components/      # Componentes Vue organizados por dominio
+│   ├── candidates/  # Componentes relacionados con candidatos (Lista, Detalle, Item)
+│   ├── common/      # Componentes reutilizables genéricos (SymbolPicker)
+│   ├── input/       # Componentes de entrada de datos (SequenceInput, IdInput)
+│   └── symbolic/    # Componentes de visualización simbólica
+├── composables/     # Lógica reactiva reutilizable (Hooks)
+│   └── useSymbolicBorderRenderer.ts # Hook para el renderizado del borde (DOM manipulation)
+├── layouts/         # Layouts principales de la aplicación
+├── pages/           # Vistas principales (Router Views)
+│   └── AnalysisPage.vue # Página principal de análisis
+├── stores/          # Stores de Pinia (Estado global)
+│   ├── candidates.ts # Gestión de candidatos
+│   └── symbols.ts    # Gestión del set de símbolos
+├── types/           # Definiciones de tipos TypeScript interfaces
+├── utils/           # Funciones puras y lógica algorítmica
+│   ├── border.ts     # Cálculos geométricos y parsing para bordes
+│   ├── decoding.ts   # Lógica de decodificación (Símbolos -> ID)
+│   ├── encoding.ts   # Lógica de codificación (ID -> Símbolos)
+│   ├── validation.ts # Reglas de validación
+│   └── wildcard.ts   # Algoritmo de expansión de comodines
+└── App.vue          # Componente raíz
+```
+
+---
+
+## 🚀 Guía para Desarrolladores
+
+### Prerrequisitos
+
+- Node.js (v18+ recomendado)
+- npm o yarn
+
+### Instalación
+
+```bash
+npm install
+```
+
+### Ejecución en Desarrollo
+
+Inicia el servidor de desarrollo con recarga en caliente (HMR):
+
+```bash
+npm run dev
+```
+
+### Compilación para Producción
+
+Genera los archivos optimizados en `dist/`:
+
+```bash
+npm run build
+```
+
+### Testing y Calidad
+
+Ejecutar tests unitarios:
+
+```bash
+npm run test:unit
+```
+
+Analizar y corregir estilo de código:
+
+```bash
+npm run lint
+```
+
+---
+
+## 📏 Estándares de Codificación
+
+Para mantener la calidad del proyecto, todo desarrollador debe adherirse a las siguientes reglas, forzadas mediante ESLint y Code Reviews:
+
+1.  **Nombres Expresivos**:
+    - ❌ Incorrecto: `const a = fn(x)`
+    - ✅ Correcto: `const candidate = findCandidate(idPersona)`
+2.  **Tipado Estricto**:
+    - No usar `any` salvo casos de fuerza mayor justificados.
+    - Definir interfaces para todas las estructuras de datos en `src/types/`.
+3.  **Principio de Responsabilidad Única (SRP)**:
+    - Si un componente tiene lógica compleja de cálculo, muévela a un `util` o `composable`.
+    - Si un componente maneja estado global complejo, usa el `store`.
+4.  **Comentarios**:
+    - El código debe ser auto-documentado. Usar comentarios solo para explicar el "POR QUÉ", no el "QUÉ".
+    - Usar JSDoc para funciones utilitarias complejas.
+
+---
+
+## 🧩 Conceptos Clave del Dominio
+
+### IdPersona
+
+El identificador único (entero positivo). Es la fuente de la verdad.
+
+### Secuencia Simbólica
+
+Representación visual del `IdPersona`. Se genera mediante una conversión de base numérica utilizando un set predefinido de símbolos.
+
+### Comodines (`?`)
+
+Caracteres especiales que permiten buscar candidatos cuando un símbolo es ilegible. El sistema expande estos comodines generando todas las combinaciones posibles.
+
+### Candidato
+
+Una posible identidad válida derivada de una secuencia (manual o expandida). Contiene el `IdPersona`, la secuencia y el estado de validación.
+
+---
+
+## 🧪 Testing
+
+El proyecto utiliza **Vitest** para pruebas unitarias. Los tests deben cubrir:
+
+- Funciones de utilidad (`utils/`) para asegurar la corrección matemática de la codificación/decodificación.
+- Lógica de los Stores (`stores/`) para verificar la gestión de estado.
+- Validaciones críticas.
+
+---
+
+_Documentación generada para facilitar el onboarding y mantenimiento a largo plazo._

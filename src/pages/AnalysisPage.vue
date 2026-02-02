@@ -44,9 +44,9 @@
         style="height: calc(100vh - 100px)"
       >
         <CandidateList
+          class="col"
           :selected-id="selectedCandidate?.id"
           @select="onCandidateSelect"
-          class="col"
         />
       </div>
     </div>
@@ -61,8 +61,6 @@ import CandidateList from "@/components/candidates/CandidateList.vue";
 import CandidateDetail from "@/components/candidates/CandidateDetail.vue";
 import { useCandidatesStore } from "@/stores/candidates";
 import { useSymbolsStore } from "@/stores/symbols";
-import { expandWildcards } from "@/utils/wildcard";
-import { symbolsToInt } from "@/utils/decoding";
 import { intToSymbolSeq } from "@/utils/encoding";
 import { useQuasar } from "quasar";
 
@@ -79,64 +77,30 @@ const onCandidateSelect = (candidate: Candidate) => {
   selectedCandidate.value = candidate;
 };
 
-const createCandidate = (
-  idPersona: string,
-  sequence: string,
-  source: "manual" | "expanded",
-): Candidate => ({
-  id: idPersona, // Use idPersona as unique ID
-  idPersona,
-  sequence,
-  systemStatus: "pending",
-  analysisStatus: "unreviewed",
-  source,
-  createdAt: new Date(),
-});
+// Simplified logic adhering to SRP: Logic delegated to store
+const createCandidate = candidatesStore.createCandidate; // Expose for handleIdSubmit if needed, or better, move handleIdSubmit logic to store too?
+// Actually handleIdSubmit logic is simple enough but let's keep consistency.
+// But wait, createCandidate is now exposed from store.
 
 const handleSequenceSubmit = async (sequence: string) => {
   const loading = $q.notify({
-    group: false, // required to be updatable
-    timeout: 0, // we want to be in control when it gets dismissed
+    group: false,
+    timeout: 0,
     spinner: true,
     message: "Generating candidates...",
     caption: "Please wait",
   });
 
   try {
-    console.log(`Starting generation for sequence: "${sequence}"`);
+    const count =
+      await candidatesStore.generateCandidatesFromSequence(sequence);
 
-    // Artificial delay to allow UI to update if synchronous blocking occurs
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    const expanded = expandWildcards(sequence, symbolsStore.symbols);
-    console.log(`Expanded to ${expanded.length} sequences`);
-
-    const candidates: Candidate[] = [];
-
-    expanded.forEach((seq) => {
-      const decodeResult = symbolsToInt(seq, symbolsStore.symbolMap);
-      if (decodeResult.ok && decodeResult.value !== undefined) {
-        candidates.push(
-          createCandidate(
-            String(decodeResult.value),
-            seq,
-            expanded.length > 1 ? "expanded" : "manual",
-          ),
-        );
-      } else {
-        console.warn(`Failed to decode sequence ${seq}:`, decodeResult.error);
-      }
-    });
-    console.log(candidates);
-    console.log(`Generated ${candidates.length} candidates`);
-
-    if (candidates.length > 0) {
-      candidatesStore.addCandidates(candidates);
+    if (count > 0) {
       loading({
         icon: "done",
         spinner: false,
         message: "Candidates generated!",
-        caption: `Added ${candidates.length} candidates`,
+        caption: `Added ${count} candidates`,
         timeout: 2500,
         color: "positive",
       });
@@ -149,13 +113,13 @@ const handleSequenceSubmit = async (sequence: string) => {
         color: "warning",
       });
     }
-  } catch (e: any) {
-    console.error("Error processing sequence:", e);
+  } catch (error: any) {
+    console.error("Error processing sequence:", error);
     loading({
       icon: "error",
       spinner: false,
       message: "Error generating candidates",
-      caption: e.message || "Unknown error",
+      caption: error.message || "Unknown error",
       timeout: 2500,
       color: "negative",
     });
@@ -165,10 +129,14 @@ const handleSequenceSubmit = async (sequence: string) => {
 const handleIdSubmit = (idPersona: string) => {
   try {
     const sequence = intToSymbolSeq(idPersona, symbolsStore.symbols);
-    const candidate = createCandidate(idPersona, sequence, "manual");
+    const candidate = candidatesStore.createCandidate(
+      idPersona,
+      sequence,
+      "manual",
+    );
     candidatesStore.addCandidate(candidate);
-  } catch (e) {
-    console.error("Error processing ID:", e);
+  } catch (error) {
+    console.error("Error processing ID:", error);
   }
 };
 </script>

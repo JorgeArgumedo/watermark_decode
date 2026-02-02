@@ -23,38 +23,49 @@ export function expandWildcards(
     throw new Error("Maximum 2 wildcards allowed");
   }
 
-  const chars = Array.from(sequence);
+  const sequenceCharacters = Array.from(sequence);
   const wildcardPositions: number[] = [];
 
   // Find wildcard positions
-  chars.forEach((char, index) => {
-    if (char === "?") {
+  sequenceCharacters.forEach((character, index) => {
+    if (character === "?") {
       wildcardPositions.push(index);
     }
   });
 
-  const results: string[] = [];
+  const expandedSequences: string[] = [];
   const symbolCount = symbols.length;
   if (symbolCount === 0) return [];
 
   const totalCombinations = Math.pow(symbolCount, wildcardCount);
 
   // Generate all combinations
-  for (let i = 0; i < totalCombinations; i++) {
-    const newChars = [...chars];
-    let combinationIndex = i;
+  for (
+    let combinationIndex = 0;
+    combinationIndex < totalCombinations;
+    combinationIndex++
+  ) {
+    const currentCombinationCharacters = [...sequenceCharacters];
+    let temporaryCombinationIndex = combinationIndex;
 
     // Replace each wildcard with the appropriate symbol
-    for (let j = wildcardPositions.length - 1; j >= 0; j--) {
-      const symbolIndex = combinationIndex % symbolCount;
-      newChars[wildcardPositions[j]] = symbols[symbolIndex];
-      combinationIndex = Math.floor(combinationIndex / symbolCount);
+    for (
+      let wildcardPosIndex = wildcardPositions.length - 1;
+      wildcardPosIndex >= 0;
+      wildcardPosIndex--
+    ) {
+      const symbolIndex = temporaryCombinationIndex % symbolCount;
+      currentCombinationCharacters[wildcardPositions[wildcardPosIndex]] =
+        symbols[symbolIndex];
+      temporaryCombinationIndex = Math.floor(
+        temporaryCombinationIndex / symbolCount,
+      );
     }
 
-    results.push(newChars.join(""));
+    expandedSequences.push(currentCombinationCharacters.join(""));
   }
 
-  return results;
+  return expandedSequences;
 }
 
 /**

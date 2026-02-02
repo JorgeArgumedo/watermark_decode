@@ -15,35 +15,35 @@ export function symbolsToInt(
   sequence: string,
   symbolMap: Map<string, number>,
 ): DecodeResult {
-  const glyphs = Array.from(sequence.replace(/\s+/g, ""));
+  const symbolCharacters = Array.from(sequence.replace(/\s+/g, ""));
   const base = symbolMap.size;
 
   if (base === 0) {
     return { ok: false, error: "Empty symbol map" };
   }
 
-  let value = 0n;
+  let currentValue = 0n;
 
-  for (let i = 0; i < glyphs.length; i++) {
-    const glyph = glyphs[i];
-    const idx = symbolMap.get(glyph);
+  for (let index = 0; index < symbolCharacters.length; index++) {
+    const glyph = symbolCharacters[index];
+    const symbolIndex = symbolMap.get(glyph);
 
-    if (idx === undefined) {
+    if (symbolIndex === undefined) {
       return {
         ok: false,
-        partialIndex: i,
-        value,
-        error: `Invalid symbol at position ${i}: ${glyph}`,
+        partialIndex: index,
+        value: currentValue,
+        error: `Invalid symbol at position ${index}: ${glyph}`,
       };
     }
 
-    value = value * BigInt(base) + BigInt(idx);
+    currentValue = currentValue * BigInt(base) + BigInt(symbolIndex);
   }
 
   return {
     ok: true,
-    value,
-    digits: glyphs.length,
+    value: currentValue,
+    digits: symbolCharacters.length,
   };
 }
 
@@ -55,5 +55,5 @@ export function symbolsToInt(
 export function createSymbolMap(
   symbols: readonly string[],
 ): Map<string, number> {
-  return new Map(symbols.map((s, i) => [s, i]));
+  return new Map(symbols.map((symbol, index) => [symbol, index]));
 }

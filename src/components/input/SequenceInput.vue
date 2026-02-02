@@ -42,8 +42,8 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "update:modelValue", value: string): void;
-  (e: "valid", isValid: boolean): void;
+  (event: "update:modelValue", value: string): void;
+  (event: "valid", isValid: boolean): void;
 }>();
 
 const { t } = useI18n();

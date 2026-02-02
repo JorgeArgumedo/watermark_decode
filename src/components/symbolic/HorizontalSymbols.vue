@@ -45,7 +45,7 @@ const sequence = computed(() => {
 
 const sequenceArray = computed(() => Array.from(sequence.value));
 
-const isWildcard = (s: string) => s === "?";
+const isWildcard = (symbol: string) => symbol === "?";
 </script>
 
 <style scoped>

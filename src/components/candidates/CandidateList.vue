@@ -59,7 +59,7 @@ const props = defineProps<{
 }>();
 
 defineEmits<{
-  (e: "select", candidate: any): void;
+  (event: "select", candidate: any): void;
 }>();
 
 const { t } = useI18n();

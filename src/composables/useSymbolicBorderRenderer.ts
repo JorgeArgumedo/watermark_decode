@@ -1,5 +1,11 @@
 import { intToSymbolSeq } from "@/utils/encoding";
 import { SYMBOLS, DEFAULT_BASE } from "@/utils/symbols";
+import {
+  buildSidePath,
+  parsePixels,
+  formatCoordinate,
+  toNumber,
+} from "@/utils/border";
 
 export interface BorderOptions {
   number?: number | string;
@@ -16,130 +22,6 @@ export interface BorderOptions {
     radius?: number | string;
   };
   repeatGapFactor?: number;
-}
-
-// Helpers
-function num(v: unknown, f = 0): number {
-  const n = Number(v);
-  return isFinite(n) ? n : f;
-}
-
-function fx(v: number): string {
-  return isFinite(v) ? (+v).toFixed(2) : "0";
-}
-
-function parsePx(v: unknown, f: number): number {
-  if (!v) return f;
-  if (typeof v === "number") return v;
-  const m = String(v).match(/^([0-9.]+)px$/);
-  if (m) return parseFloat(m[1]);
-  const n = parseFloat(String(v));
-  return isFinite(n) ? n : f;
-}
-
-function buildSidePath(
-  x: unknown,
-  y: unknown,
-  w: unknown,
-  h: unknown,
-  r: unknown,
-  sides: string[],
-): string {
-  const nx = num(x, 0);
-  const ny = num(y, 0);
-  const nw = num(w, 0);
-  const nh = num(h, 0);
-  const nr = num(r, 0);
-
-  if (nw <= 0 || nh <= 0) return "";
-
-  // Normalize sides
-  const sideSet = new Set(sides.map((s) => String(s).toLowerCase()));
-  let targetSides: string[];
-
-  if (sideSet.has("full")) {
-    targetSides = ["top", "right", "bottom", "left"];
-  } else {
-    targetSides = ["top", "right", "bottom", "left"].filter((s) =>
-      sideSet.has(s),
-    );
-  }
-
-  const left = nx,
-    top = ny,
-    right = nx + nw,
-    bottom = ny + nh;
-  const rx = Math.min(nr, nw / 2, nh / 2);
-
-  const include = {
-    top: targetSides.includes("top"),
-    right: targetSides.includes("right"),
-    bottom: targetSides.includes("bottom"),
-    left: targetSides.includes("left"),
-  };
-
-  const order = ["top", "right", "bottom", "left"];
-  const startSide = order.find((s) => include[s as keyof typeof include]);
-
-  if (!startSide) return "";
-
-  let cx, cy;
-
-  // Starting point logic matches original script
-  if (startSide === "top") {
-    cx = left + rx;
-    cy = top;
-  } else if (startSide === "right") {
-    cx = right;
-    cy = top + rx;
-  } else if (startSide === "bottom") {
-    cx = right - rx;
-    cy = bottom;
-  } else {
-    cx = left;
-    cy = bottom - rx;
-  } // left
-
-  const cmd: string[] = [];
-  cmd.push(`M ${fx(cx)} ${fx(cy)}`);
-
-  function appendSide(side: string) {
-    if (side === "top" && include.top) {
-      cmd.push(`H ${fx(right - rx)}`);
-      if (include.right)
-        cmd.push(`A ${fx(rx)} ${fx(rx)} 0 0 1 ${fx(right)} ${fx(top + rx)}`);
-      else cmd.push(`L ${fx(right)} ${fx(top)}`);
-    }
-    if (side === "right" && include.right) {
-      cmd.push(`V ${fx(bottom - rx)}`);
-      if (include.bottom)
-        cmd.push(`A ${fx(rx)} ${fx(rx)} 0 0 1 ${fx(right - rx)} ${fx(bottom)}`);
-      else cmd.push(`L ${fx(right)} ${fx(bottom)}`);
-    }
-    if (side === "bottom" && include.bottom) {
-      cmd.push(`H ${fx(left + rx)}`);
-      if (include.left)
-        cmd.push(`A ${fx(rx)} ${fx(rx)} 0 0 1 ${fx(left)} ${fx(bottom - rx)}`);
-      else cmd.push(`L ${fx(left)} ${fx(bottom)}`);
-    }
-    if (side === "left" && include.left) {
-      cmd.push(`V ${fx(top + rx)}`);
-      if (include.top)
-        cmd.push(`A ${fx(rx)} ${fx(rx)} 0 0 1 ${fx(left + rx)} ${fx(top)}`);
-      else cmd.push(`L ${fx(left)} ${fx(top)}`);
-    }
-  }
-
-  const idx = order.indexOf(startSide);
-  for (let i = 0; i < 4; i++) {
-    appendSide(order[(idx + i) % 4]);
-  }
-
-  if (include.top && include.right && include.bottom && include.left) {
-    cmd.push("Z");
-  }
-
-  return cmd.join(" ");
 }
 
 export function useSymbolicBorderRenderer() {
@@ -325,10 +207,10 @@ export function useSymbolicBorderRenderer() {
     ensurePADDING(el, sides, { textSize, borderWidth });
 
     // 4. Compute Sizes
-    const explicitSize = parsePx(css.textSize || textSize, 13) || 13;
+    const explicitSize = parsePixels(css.textSize || textSize, 13) || 13;
     // Use font size from element if set, or explicit
     const parentFontSize = symTextPath.parentElement?.style.fontSize
-      ? parsePx(symTextPath.parentElement.style.fontSize, explicitSize)
+      ? parsePixels(symTextPath.parentElement.style.fontSize, explicitSize)
       : explicitSize;
 
     const glyphPx = Math.max(parentFontSize, Math.round(borderWidth * 0.9));
@@ -374,7 +256,7 @@ export function useSymbolicBorderRenderer() {
       if (!outerD || !innerD) {
         bandPath.setAttribute(
           "d",
-          `M ${fx(0)} ${fx(0)} H ${fx(outerW)} V ${fx(outerH)} H ${fx(0)} Z`,
+          `M ${formatCoordinate(0)} ${formatCoordinate(0)} H ${formatCoordinate(outerW)} V ${formatCoordinate(outerH)} H ${formatCoordinate(0)} Z`,
         );
       } else {
         bandPath.setAttribute("d", outerD + " " + innerD);
@@ -425,7 +307,7 @@ export function useSymbolicBorderRenderer() {
         if (sides.includes("left"))
           centerPath.setAttribute(
             "d",
-            `M ${fx(Math.round(borderWidth / 2))} ${fx(0)} V ${fx(outerH)}`,
+            `M ${formatCoordinate(Math.round(borderWidth / 2))} ${formatCoordinate(0)} V ${formatCoordinate(outerH)}`,
           );
         // ... simplify for now, assuming buildSidePath works
       }
@@ -466,8 +348,8 @@ export function useSymbolicBorderRenderer() {
 
     // TEXT GENERATION
     // Convert number to symbols
-    const numStr = String(number);
-    const symbolSeq = intToSymbolSeq(numStr, symbolsArray);
+    const numberStr = String(number);
+    const symbolSeq = intToSymbolSeq(numberStr, symbolsArray);
     const unitText = sepPos === "inline" ? separator + symbolSeq : symbolSeq;
 
     // Repeat logic
@@ -503,7 +385,7 @@ export function useSymbolicBorderRenderer() {
 
     // Metadata
     symTextPath.dataset.digits = String(
-      intToSymbolSeq(numStr, symbolsArray).length,
+      intToSymbolSeq(numberStr, symbolsArray).length,
     ); // wait, intToSymbolSeq returns str, length is chars. intToDigits returns array.
     // Original used intToDigits(number, base).length.
     // intToSymbolSeq returns correct sequence length.
