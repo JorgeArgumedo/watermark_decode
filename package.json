@@ -1,0 +1,47 @@
+{
+  "name": "markwater_decode",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "SPA for person identification through symbolic encoding",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:unit": "vitest run --coverage",
+    "test:ui": "vitest --ui",
+    "type-check": "vue-tsc --noEmit",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
+  },
+  "dependencies": {
+    "@quasar/extras": "^1.17.0",
+    "axios": "^1.6.5",
+    "pinia": "^2.1.7",
+    "quasar": "^2.14.3",
+    "vue": "^3.5.24",
+    "vue-i18n": "^9.9.1",
+    "vue-router": "^4.2.5"
+  },
+  "devDependencies": {
+    "@quasar/vite-plugin": "^1.7.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@testing-library/vue": "^8.0.2",
+    "@types/node": "^24.10.1",
+    "@typescript-eslint/eslint-plugin": "^6.19.1",
+    "@typescript-eslint/parser": "^6.19.1",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vitest/coverage-v8": "^1.2.2",
+    "@vitest/ui": "^1.2.2",
+    "@vue/test-utils": "^2.4.4",
+    "@vue/tsconfig": "^0.8.1",
+    "eslint": "^8.56.0",
+    "eslint-plugin-vue": "^9.20.1",
+    "happy-dom": "^13.3.8",
+    "sass": "^1.70.0",
+    "typescript": "~5.9.3",
+    "vite": "^7.2.4",
+    "vitest": "^1.2.2",
+    "vue-tsc": "^3.1.4"
+  }
+}

@@ -1,0 +1,80 @@
+<template>
+  <div class="sequence-input">
+    <q-input
+      v-model="model"
+      outlined
+      :label="t('analysis.inputSequence')"
+      :error="!!error"
+      :error-message="error"
+      class="q-mb-sm"
+      ref="inputRef"
+    >
+      <template #append>
+        <q-btn
+          round
+          dense
+          flat
+          icon="grid_view"
+          @click="showPicker = !showPicker"
+        >
+          <q-tooltip>Show Symbol Picker</q-tooltip>
+        </q-btn>
+      </template>
+    </q-input>
+
+    <q-slide-transition>
+      <div v-if="showPicker" class="q-mb-md border-radius-inherit bg-grey-1">
+        <SymbolPicker @select="onSymbolSelect" />
+      </div>
+    </q-slide-transition>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import SymbolPicker from "@/components/common/SymbolPicker.vue";
+import { validateSequence } from "@/utils/validation";
+import { useSymbolsStore } from "@/stores/symbols";
+
+const props = defineProps<{
+  modelValue: string;
+}>();
+
+const emit = defineEmits<{
+  (e: "update:modelValue", value: string): void;
+  (e: "valid", isValid: boolean): void;
+}>();
+
+const { t } = useI18n();
+const symbolsStore = useSymbolsStore();
+
+const model = computed({
+  get: () => props.modelValue,
+  set: (val) => emit("update:modelValue", val),
+});
+
+const showPicker = ref(false);
+const error = ref("");
+
+const onSymbolSelect = (symbol: string) => {
+  model.value += symbol;
+};
+
+watch(model, (newVal) => {
+  if (!newVal) {
+    error.value = "";
+    emit("valid", false);
+    return;
+  }
+
+  const validation = validateSequence(newVal, symbolsStore.symbols);
+  if (!validation.valid) {
+    error.value = validation.error || "Invalid sequence";
+    emit("valid", false);
+  } else {
+    error.value = "";
+    emit("valid", true);
+  }
+});
+</script>
