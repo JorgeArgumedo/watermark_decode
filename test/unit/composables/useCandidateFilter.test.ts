@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { ref } from "vue";
 import { useCandidateFilter } from "@/composables/useCandidateFilter";
-import type { Candidate } from "@/types/candidate";
+import type { Candidate } from "@shared/types/candidate";
 
 describe("useCandidateFilter", () => {
   const mockCandidates: Candidate[] = [

@@ -7,7 +7,7 @@ import type {
   CandidateDetailsRequest,
   CandidateDetailsResponse,
   CandidateApiDetails,
-} from "@/types/api";
+} from "@shared/types/api";
 
 class CandidateService {
   private readonly batchDetailsEndpoint = "/candidates/batch-details";

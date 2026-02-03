@@ -2,7 +2,7 @@
  * Validation utilities for input validation
  */
 
-import type { ValidationResult } from "@/types/symbol";
+import type { ValidationResult } from "@shared/types/symbol";
 import { countWildcards } from "./wildcard";
 
 /**

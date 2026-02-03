@@ -3,7 +3,7 @@
  * Converts symbolic sequences back to numeric IDs
  */
 
-import type { DecodeResult } from "@/types/symbol";
+import type { DecodeResult } from "@shared/types/symbol";
 
 /**
  * Decode a symbolic sequence back into its original numeric ID

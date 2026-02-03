@@ -70,7 +70,7 @@ import { useSymbolsStore } from "@/stores/symbols";
 import { encodeIdToSymbolicSequence } from "@/utils/encoding";
 import { useQuasar } from "quasar";
 
-import type { Candidate } from "@/types/candidate";
+import type { Candidate } from "@shared/types/candidate";
 
 const $q = useQuasar();
 const { t } = useI18n();

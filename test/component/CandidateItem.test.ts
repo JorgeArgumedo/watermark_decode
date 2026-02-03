@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import CandidateItem from "@/components/candidates/CandidateItem.vue";
 import { createI18n } from "vue-i18n";
-import type { Candidate } from "@/types/candidate";
+import type { Candidate } from "@shared/types/candidate";
 
 describe("CandidateItem.vue", () => {
   const i18n = createI18n({

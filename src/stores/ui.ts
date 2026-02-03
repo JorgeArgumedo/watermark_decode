@@ -4,7 +4,7 @@
 
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import type { SystemStatus, AnalysisStatus } from "@/types/candidate";
+import type { SystemStatus, AnalysisStatus } from "@shared/types/candidate";
 
 export const useUIStore = defineStore("ui", () => {
   // State

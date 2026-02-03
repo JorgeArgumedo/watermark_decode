@@ -72,12 +72,12 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import type { Candidate } from "@/types/candidate";
+import type { Candidate } from "@shared/types/candidate";
 import HorizontalSymbols from "@/components/symbolic/HorizontalSymbols.vue";
 import {
   SYSTEM_STATUS_OPTIONS,
   ANALYSIS_STATUS_OPTIONS,
-} from "@/constants/status";
+} from "@shared/constants/status";
 
 const props = defineProps<{
   candidate: Candidate;

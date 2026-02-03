@@ -261,8 +261,8 @@ import { useCandidateFilter } from "@/composables/useCandidateFilter";
 import {
   SYSTEM_STATUS_OPTIONS,
   ANALYSIS_STATUS_OPTIONS,
-} from "@/constants/status";
-import type { Candidate } from "@/types/candidate";
+} from "@shared/constants/status";
+import type { Candidate } from "@shared/types/candidate";
 
 defineProps<{
   selectedId?: string | null;

@@ -2,6 +2,15 @@
 
 ## SPA de Identificación de Personas mediante Codificación Simbólica
 
+## Arquitectura propuesta (Clean Architecture)
+
+- domain/: Entidades, interfaces (puertos) y casos de uso (usecases). Ej: `domain/repositories`, `domain/usecases`.
+- infrastructure/: Implementaciones concretas de infra (HTTP clients, repositorios). Ej: `infrastructure/repositories/ApiCandidateRepository`.
+- presentation/: Stores, componentes, composables y wiring de la aplicación. Los stores delegan en usecases.
+- shared/: Tipos y utilidades puras (`utils`, `types`).
+
+> Los cambios recientes extraen la lógica de negocio del store a `domain/usecases` y mueven la comunicación HTTP a `infrastructure`.
+
 ## 0. Codigo base
 
 Logica de implementacion:

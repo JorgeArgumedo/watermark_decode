@@ -4,7 +4,7 @@ import type {
   Candidate,
   SystemStatus,
   AnalysisStatus,
-} from "@/types/candidate";
+} from "@shared/types/candidate";
 
 /**
  * Composable to manage candidate filtering logic

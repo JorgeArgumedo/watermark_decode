@@ -9,12 +9,14 @@ import type {
   SystemStatus,
   AnalysisStatus,
   CandidateSource,
-} from "@/types/candidate";
-import { expandWildcards } from "@/utils/wildcard";
-import { decodeSymbolicSequenceToId } from "@/utils/decoding";
+} from "@shared/types/candidate";
+
+
 import { useSymbolsStore } from "@/stores/symbols";
-import { candidateService } from "@/services/candidateService";
-import type { CandidateApiDetails } from "@/types/api";
+import { GenerateCandidatesUseCase } from "@/domain/usecases/GenerateCandidatesUseCase";
+import { SynchronizeCandidatesUseCase } from "@/domain/usecases/SynchronizeCandidatesUseCase";
+import { ApiCandidateRepository } from "@/infrastructure/repositories/ApiCandidateRepository"; 
+import type { CandidateApiDetails } from "@shared/types/api";
 
 export const useCandidatesStore = defineStore("candidates", () => {
   const symbolsStore = useSymbolsStore();
@@ -153,43 +155,22 @@ export const useCandidatesStore = defineStore("candidates", () => {
   /**
    * Core business logic: Expand wildcards and generate candidate entities
    */
-  async function generateCandidatesFromSequence(
-    symbolicSequence: string,
-  ): Promise<number> {
-    // Artificial delay for UI responsiveness
+  async function generateCandidatesFromSequence(symbolicSequence: string): Promise<number> {
+    // Small delay preserved for UI responsiveness
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    const expandedSequences = expandWildcards(
+    const usecase = new GenerateCandidatesUseCase();
+    const generated = await usecase.execute(
       symbolicSequence,
       symbolsStore.symbols,
+      symbolsStore.symbolIndexMap,
     );
-    const successfullyGeneratedCandidates: Candidate[] = [];
 
-    expandedSequences.forEach((sequence) => {
-      const decodingResult = decodeSymbolicSequenceToId(
-        sequence,
-        symbolsStore.symbolIndexMap,
-      );
-
-      if (decodingResult.ok && decodingResult.value !== undefined) {
-        const source: CandidateSource =
-          expandedSequences.length > 1 ? "expanded" : "manual";
-        successfullyGeneratedCandidates.push(
-          createCandidateNode(String(decodingResult.value), sequence, source),
-        );
-      } else {
-        console.warn(
-          `Failed to decode sequence ${sequence}:`,
-          decodingResult.error,
-        );
-      }
-    });
-
-    if (successfullyGeneratedCandidates.length > 0) {
-      addCandidates(successfullyGeneratedCandidates);
+    if (generated.length > 0) {
+      addCandidates(generated);
     }
 
-    return successfullyGeneratedCandidates.length;
+    return generated.length;
   }
 
   // Añadir esta acción dentro del return del store existente:
@@ -226,16 +207,17 @@ export const useCandidatesStore = defineStore("candidates", () => {
 
     const candidateIdsToSync = Array.from(candidateMapByIdPersona.keys());
 
-    // 3. Consultar lote a la API externa
-    const apiResponse =
-      await candidateService.fetchDetailsForCandidates(candidateIdsToSync);
+    // 3. Consultar lote a la API externa via Use Case + Repo
+    const repo = new ApiCandidateRepository();
+    const usecase = new SynchronizeCandidatesUseCase(repo);
+    const apiResponse = await usecase.execute(candidateIdsToSync);
 
     // 4. Actualizar candidatos usando el mapa (operación eficiente)
     apiResponse.results.forEach((apiData: CandidateApiDetails) => {
       const localCandidate = candidateMapByIdPersona.get(apiData.idPersona);
       if (!localCandidate) return;
 
-      this.updateCandidateWithApiData(localCandidate, apiData);
+      updateCandidateWithApiData(localCandidate, apiData);
     });
 
     // 5. Forzar reactividad reasignando el array

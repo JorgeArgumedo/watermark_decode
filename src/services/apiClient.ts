@@ -7,7 +7,7 @@ import axios, {
   type AxiosRequestConfig,
   type AxiosResponse,
 } from "axios";
-import type { ApiError } from "@/types/api";
+import type { ApiError } from "@shared/types/api";
 
 class ApiClient {
   private readonly clientInstance: AxiosInstance;
