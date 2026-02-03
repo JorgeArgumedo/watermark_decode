@@ -60,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import InputTabs from "@/components/input/InputTabs.vue";
 import CandidateList from "@/components/candidates/CandidateList.vue";
@@ -68,6 +68,8 @@ import CandidateDetail from "@/components/candidates/CandidateDetail.vue";
 import { useCandidatesStore } from "@/stores/candidates";
 import { useSymbolsStore } from "@/stores/symbols";
 import { encodeIdToSymbolicSequence } from "@domain/utils/encoding";
+import { useGenerateCandidates } from "@presentation/composables/useGenerateCandidates";
+import { useSelectionSync } from "@presentation/composables/useSelectionSync";
 import { useQuasar } from "quasar";
 
 import type { Candidate } from "@shared/types/candidate";
@@ -83,68 +85,13 @@ const onCandidateSelect = (candidate: Candidate) => {
   selectedCandidate.value = candidate;
 };
 
-// Sync selection: if the active candidate is removed from the store, deselect it
-watch(
-  () => candidatesStore.candidates,
-  (newCandidates) => {
-    if (selectedCandidate.value) {
-      const stillExists = newCandidates.some(
-        (candidate) => candidate.id === selectedCandidate.value?.id,
-      );
-      if (!stillExists) {
-        selectedCandidate.value = null;
-      }
-    }
-  },
-  { deep: true },
-);
+// Sync selection using a composable to keep presentation logic small
+useSelectionSync(selectedCandidate, candidatesStore.candidates);
 
+// Use the generate helper composable which centralizes notification UX
+const { generate } = useGenerateCandidates();
 const handleSequenceSubmit = async (symbolicSequence: string) => {
-  const loadingNotification = $q.notify({
-    group: false,
-    timeout: 0,
-    spinner: true,
-    message: t("analysis.generatingCandidates"),
-    caption: t("common.pleaseWait"),
-  });
-
-  try {
-    const newlyGeneratedCandidatesCount =
-      await candidatesStore.generateCandidatesFromSequence(symbolicSequence);
-
-    if (newlyGeneratedCandidatesCount > 0) {
-      loadingNotification({
-        icon: "done",
-        spinner: false,
-        message: t("analysis.candidatesGenerated"),
-        caption: t("analysis.addedCount", {
-          count: newlyGeneratedCandidatesCount,
-        }),
-        timeout: 2500,
-        color: "positive",
-      });
-    } else {
-      loadingNotification({
-        icon: "warning",
-        spinner: false,
-        message: t("analysis.noCandidatesGenerated"),
-        timeout: 2500,
-        color: "warning",
-      });
-    }
-  } catch (error) {
-    console.error("Error processing sequence:", error);
-    const errorMessage =
-      error instanceof Error ? error.message : t("errors.unknownError");
-    loadingNotification({
-      icon: "error",
-      spinner: false,
-      message: t("errors.errorGenerating"),
-      caption: errorMessage,
-      timeout: 2500,
-      color: "negative",
-    });
-  }
+  await generate(symbolicSequence);
 };
 
 const handleIdSubmit = (targetPersonaId: string) => {
