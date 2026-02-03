@@ -44,9 +44,7 @@
               <q-item
                 v-close-popup
                 clickable
-                @click="
-                  candidatesStore.removeAllCandidatesBySystemStatus('pending')
-                "
+                @click="clearBySystemStatus('pending')"
               >
                 <q-item-section avatar>
                   <q-icon name="hourglass_empty" />
@@ -56,9 +54,7 @@
               <q-item
                 v-close-popup
                 clickable
-                @click="
-                  candidatesStore.removeAllCandidatesBySystemStatus('found')
-                "
+                @click="clearBySystemStatus('found')"
               >
                 <q-item-section avatar>
                   <q-icon
@@ -71,9 +67,7 @@
               <q-item
                 v-close-popup
                 clickable
-                @click="
-                  candidatesStore.removeAllCandidatesBySystemStatus('not_found')
-                "
+                @click="clearBySystemStatus('not_found')"
               >
                 <q-item-section avatar>
                   <q-icon
@@ -86,9 +80,7 @@
               <q-item
                 v-close-popup
                 clickable
-                @click="
-                  candidatesStore.removeAllCandidatesBySystemStatus('error')
-                "
+                @click="clearBySystemStatus('error')"
               >
                 <q-item-section avatar>
                   <q-icon
@@ -107,11 +99,7 @@
               <q-item
                 v-close-popup
                 clickable
-                @click="
-                  candidatesStore.removeAllCandidatesByAnalysisStatus(
-                    'unreviewed',
-                  )
-                "
+                @click="clearByAnalysisStatus('unreviewed')"
               >
                 <q-item-section avatar>
                   <q-icon name="help_outline" />
@@ -121,11 +109,7 @@
               <q-item
                 v-close-popup
                 clickable
-                @click="
-                  candidatesStore.removeAllCandidatesByAnalysisStatus(
-                    'approved',
-                  )
-                "
+                @click="clearByAnalysisStatus('approved')"
               >
                 <q-item-section avatar>
                   <q-icon
@@ -138,11 +122,7 @@
               <q-item
                 v-close-popup
                 clickable
-                @click="
-                  candidatesStore.removeAllCandidatesByAnalysisStatus(
-                    'excluded',
-                  )
-                "
+                @click="clearByAnalysisStatus('excluded')"
               >
                 <q-item-section avatar>
                   <q-icon
@@ -254,10 +234,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { useQuasar } from "quasar";
 import { useCandidatesStore } from "@/stores/candidates";
 import CandidateItem from "./CandidateItem.vue";
 import { useCandidateFilter } from "@presentation/composables/useCandidateFilter";
+import { useConfirmDialog } from "@presentation/composables/useConfirmDialog";
+import { useClearByStatus } from "@presentation/composables/useClearByStatus";
 import {
   SYSTEM_STATUS_OPTIONS,
   ANALYSIS_STATUS_OPTIONS,
@@ -273,7 +254,6 @@ defineEmits<{
 }>();
 
 const { t } = useI18n();
-const $q = useQuasar();
 const candidatesStore = useCandidatesStore();
 
 const candidates = computed(() => candidatesStore.candidates);
@@ -288,15 +268,15 @@ const {
   filteredCount: filteredCandidatesCount,
 } = useCandidateFilter(candidates);
 
-const confirmClearAll = () => {
-  $q.dialog({
+const { confirm } = useConfirmDialog();
+const { clearBySystemStatus, clearByAnalysisStatus } = useClearByStatus();
+
+const confirmClearAll = async () => {
+  await confirm({
     title: t("analysis.clearAll"),
     message: t("analysis.confirmClearAll"),
-    cancel: true,
-    persistent: true,
-  }).onOk(() => {
-    candidatesStore.clearAllCandidates();
   });
+  candidatesStore.clearAllCandidates();
 };
 </script>
 

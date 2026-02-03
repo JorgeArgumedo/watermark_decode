@@ -70,11 +70,9 @@ import { useSymbolsStore } from "@/stores/symbols";
 import { encodeIdToSymbolicSequence } from "@domain/utils/encoding";
 import { useGenerateCandidates } from "@presentation/composables/useGenerateCandidates";
 import { useSelectionSync } from "@presentation/composables/useSelectionSync";
-import { useQuasar } from "quasar";
 
 import type { Candidate } from "@shared/types/candidate";
 
-const $q = useQuasar();
 const { t } = useI18n();
 const candidatesStore = useCandidatesStore();
 const symbolsStore = useSymbolsStore();

@@ -97,6 +97,12 @@ export function useSymbolicBorderRenderer() {
       element.dataset._sb_setPosition = "1";
     }
 
+    // Ensure the border (SVG) is confined to the element bounds to prevent overlapping siblings.
+    if (!element.dataset._sb_overflow_saved) {
+      element.dataset._sb_overflow_saved = computed.overflow || "";
+      element.style.overflow = "hidden";
+    }
+
     // Default options
     const number = options.number || 0;
     let sides = Array.isArray(options.sides)
@@ -140,10 +146,26 @@ export function useSymbolicBorderRenderer() {
       svg.style.width = "100%";
       svg.style.height = "100%";
       svg.style.pointerEvents = "none";
-      svg.style.overflow = "visible";
-      svg.style.zIndex = "999";
+      // Keep SVG constrained to the element bounds to avoid overlapping siblings
+      svg.style.overflow = "hidden";
+      // Render behind content so glyphs remain on the border and don't cover inner elements
+      svg.style.zIndex = "0";
       svg.dataset.createdBy = "symbolic-border";
       element.appendChild(svg);
+
+      // Automatically re-render on resize to keep watermark aligned to the container edge
+      try {
+        if (typeof ResizeObserver !== "undefined") {
+          const ro = new ResizeObserver(() => {
+            requestAnimationFrame(() => renderBorder(element, options));
+          });
+          ro.observe(element);
+          // attach observer reference to svg for cleanup
+          (svg as any)._sb_ro = ro;
+        }
+      } catch {
+        /* ignore: ResizeObserver not available in some envs */
+      }
 
       // Center Path
       centerPath = document.createElementNS(
@@ -377,6 +399,15 @@ export function useSymbolicBorderRenderer() {
       svg,
       update: () => renderBorder(element, options),
       destroy: () => {
+        // Disconnect resize observer if present
+        try {
+          if ((svg as any)._sb_ro) {
+            (svg as any)._sb_ro.disconnect();
+          }
+        } catch {
+          /* ignore */
+        }
+
         if (svg && svg.parentElement) svg.parentElement.removeChild(svg);
         // Restore paddings
         if (element.dataset._sb_padding_applied) {
@@ -384,6 +415,12 @@ export function useSymbolicBorderRenderer() {
           element.style.paddingRight = element.dataset._sb_padding_right || "";
           element.style.paddingBottom = element.dataset._sb_padding_bottom || "";
           element.style.paddingLeft = element.dataset._sb_padding_left || "";
+        }
+
+        // Restore overflow if we modified it
+        if (element.dataset._sb_overflow_saved !== undefined) {
+          element.style.overflow = element.dataset._sb_overflow_saved || "";
+          delete element.dataset._sb_overflow_saved;
         }
       },
     };

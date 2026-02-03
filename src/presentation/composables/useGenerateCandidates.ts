@@ -46,7 +46,10 @@ export function useGenerateCandidates() {
 
       return newlyGeneratedCandidatesCount;
     } catch (error) {
-      console.error("Error processing sequence:", error);
+      // Avoid printing to stderr during test runs to reduce noise
+      if (import.meta.env.MODE !== "test") {
+        console.error("Error processing sequence:", error);
+      }
       const errorMessage = error instanceof Error ? error.message : t("errors.unknownError");
       loadingNotification({
         icon: "error",

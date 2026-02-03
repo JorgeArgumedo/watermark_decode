@@ -10,6 +10,12 @@ vi.mock("@presentation/composables/useSymbolicBorderRenderer", () => ({
   useSymbolicBorderRenderer: () => ({ renderBorder: renderBorderMock }),
 }));
 
+// Prevent network calls from useFetchCandidateDetails in these tests
+const mockFetchDetails = vi.fn().mockResolvedValue({ results: [], summary: { totalQueried: 0, totalFound: 0, totalNotFound: 0 } });
+vi.mock("@/infrastructure/repositories/ApiCandidateRepository", () => ({
+  ApiCandidateRepository: class { fetchDetails = mockFetchDetails; },
+}));
+
 import CandidateDetail from "@/components/candidates/CandidateDetail.vue";
 
 const i18n = createI18n({
@@ -20,7 +26,7 @@ const i18n = createI18n({
       analysis: { candidateDetails: "Candidate Details", inputSequence: "Sequence", systemStatus: "System Status", analysisStatus: "Analysis Status" },
       common: { id: "ID" },
       status: { pending: "Pending", found: "Found", unreviewed: "Unreviewed", approved: "Approved", excluded: "Excluded" },
-      actions: { approve: "Approve", exclude: "Exclude" },
+      actions: { approve: "Approve", exclude: "Exclude", refresh: "Refresh" },
     },
   },
 });

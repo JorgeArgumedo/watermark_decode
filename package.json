@@ -11,6 +11,7 @@
     "test": "vitest",
     "test:unit": "vitest run --coverage",
     "test:ui": "vitest --ui",
+    "check-locales": "vitest run test/unit/i18n/keys-consistency.test.ts --run",
     "type-check": "vue-tsc --noEmit",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },

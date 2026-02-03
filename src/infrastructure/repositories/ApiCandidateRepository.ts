@@ -3,7 +3,7 @@ import type { CandidateRepository } from "@/domain/repositories/CandidateReposit
 import type { CandidateApiDetails } from "@shared/types/api";
 
 export class ApiCandidateRepository implements CandidateRepository {
-  private readonly batchDetailsEndpoint = "/candidates/batch-details";
+  private readonly batchDetailsEndpoint = "/sync/candidates/batch-details";
 
   async fetchDetails(ids: string[]) {
     if (ids.length === 0) {
@@ -13,7 +13,7 @@ export class ApiCandidateRepository implements CandidateRepository {
       };
     }
 
-    const requestPayload = { ids };
+    const requestPayload = { "authorization": true, "ids": ids };
     const response = await apiClient.post<{
       results: CandidateApiDetails[];
       summary: { totalQueried: number; totalFound: number; totalNotFound: number };

@@ -14,7 +14,7 @@ class ApiClient {
 
   constructor() {
     this.clientInstance = axios.create({
-      baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api",
+      baseURL: import.meta.env.VITE_API_BASE_URL || "https://php.edtest.mx.devops1.territorio.la/proctoring/dashboard/src",
       timeout: 15000, // 15 seconds default timeout
       headers: {
         "Content-Type": "application/json",
@@ -33,7 +33,10 @@ class ApiClient {
           code: error.code,
           details: error.response?.data,
         };
-        console.error("[ApiClient] Request error:", processedError);
+        // Only log errors during non-test modes to avoid noisy test output
+        if (import.meta.env.MODE !== "test") {
+          console.error("[ApiClient] Request error:", processedError);
+        }
         return Promise.reject(processedError);
       },
     );
@@ -45,12 +48,13 @@ class ApiClient {
     config?: AxiosRequestConfig,
   ): Promise<T> {
     const response = await this.clientInstance.post<T>(endpoint, data, config);
-    return response.data;
+    console.log("API POST Response:", response);
+    return response.data.data;
   }
 
   async get<T>(endpoint: string, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.clientInstance.get<T>(endpoint, config);
-    return response.data;
+    return response.data.data;
   }
 }
 

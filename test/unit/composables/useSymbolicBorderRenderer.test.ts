@@ -45,6 +45,34 @@ describe("useSymbolicBorderRenderer", () => {
     const svg = element.querySelector('svg[data-created-by="symbolic-border"]');
     expect(svg).toBeTruthy();
     expect(svg?.querySelector("textPath")).toBeTruthy();
+    // Ensure SVG is constrained to the element and rendered behind content
+    expect((svg as SVGElement).style.overflow).toBe("hidden");
+    expect((svg as SVGElement).style.zIndex).toBe("0");
+  });
+
+  it("attaches a ResizeObserver when available", () => {
+    // Mock global ResizeObserver
+    class MockRO {
+      observed: Element[] = [];
+      observe(el: Element) {
+        this.observed.push(el);
+      }
+      disconnect() {
+        this.observed = [];
+      }
+    }
+    const originalRO = (globalThis as any).ResizeObserver;
+    (globalThis as any).ResizeObserver = MockRO;
+
+    try {
+      const { renderBorder } = useSymbolicBorderRenderer();
+      renderBorder(element, { number: "999" });
+      const svg = element.querySelector('svg[data-created-by="symbolic-border"]') as any;
+      expect(svg).toBeTruthy();
+      expect(svg._sb_ro).toBeInstanceOf(MockRO);
+    } finally {
+      (globalThis as any).ResizeObserver = originalRO;
+    }
   });
 
   it("updates existing SVG if called again", () => {

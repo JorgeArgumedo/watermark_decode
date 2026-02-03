@@ -116,3 +116,23 @@ config.global.mocks.$t = (key: string) => {
 
   return messages[key] || key;
 };
+
+// Silence console during tests to avoid noisy output. Tests can call `restoreConsole()` when they
+// need the original console behavior for assertions that depend on real logging.
+const _originalConsole = {
+  error: console.error,
+  warn: console.warn,
+  log: console.log,
+  info: console.info,
+};
+console.error = vi.fn();
+console.warn = vi.fn();
+console.log = vi.fn();
+console.info = vi.fn();
+
+export const restoreConsole = () => {
+  console.error = _originalConsole.error;
+  console.warn = _originalConsole.warn;
+  console.log = _originalConsole.log;
+  console.info = _originalConsole.info;
+};

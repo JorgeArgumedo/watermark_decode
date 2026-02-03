@@ -51,6 +51,8 @@ export default {
     excludeTooltip: "Marcar como excluído",
     deleteTooltip: "Excluir candidato",
     showPicker: "Mostrar seletor de símbolos",
+    refresh: "Atualizar",
+    refreshTooltip: "Atualizar os detalhes do candidato",
   },
   help: {
     title: "Ajuda e Documentação",

@@ -36,6 +36,6 @@ export function clearCandidateApiData(candidate: Candidate): void {
   ] as const;
 
   fieldsToClear.forEach((field) => {
-    (candidate as any)[field] = undefined;
+    (candidate)[field] = undefined;
   });
 }

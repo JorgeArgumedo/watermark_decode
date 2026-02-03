@@ -180,10 +180,10 @@ export const useCandidatesStore = defineStore("candidates", () => {
   // Añadir esta acción dentro del return del store existente:
   async function synchronizeCandidatesWithExternalApi() {
     const synchronizationThresholdInMinutes = 5;
-    const currentTime = new Date();
-    const cutoffTimeForResync = new Date(
-      currentTime.getTime() - synchronizationThresholdInMinutes * 60000,
-    );
+    // const currentTime = new Date();
+    // const cutoffTimeForResync = new Date(
+    //   currentTime.getTime() - synchronizationThresholdInMinutes * 60000,
+    // );
 
     // 1. Identificar candidatos que necesitan sincronización (delegado a dominio)
     const candidateIdsToSync = candidatesNeedingSync(

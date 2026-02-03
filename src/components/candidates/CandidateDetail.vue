@@ -67,6 +67,39 @@
             </q-item-section>
           </q-item>
 
+          <q-item v-if="candidate.nombre">
+            <q-item-section>
+              <q-item-label caption>
+                {{ t("analysis.name") }}
+              </q-item-label>
+              <div class="q-mt-xs">
+                {{ candidate.nombre }}
+              </div>
+            </q-item-section>
+          </q-item>
+
+          <q-item v-if="candidate.email">
+            <q-item-section>
+              <q-item-label caption>
+                {{ t("analysis.email") }}
+              </q-item-label>
+              <div class="q-mt-xs">
+                {{ candidate.email }}
+              </div>
+            </q-item-section>
+          </q-item>
+
+          <q-item v-if="candidate.universidad">
+            <q-item-section>
+              <q-item-label caption>
+                {{ t("analysis.university") }}
+              </q-item-label>
+              <div class="q-mt-xs">
+                {{ candidate.universidad }}
+              </div>
+            </q-item-section>
+          </q-item>
+
           <q-item>
             <q-item-section>
               <q-item-label caption>
@@ -102,6 +135,14 @@
             :disable="candidate.analysisStatus === 'excluded'"
             @click="updateStatus('excluded')"
           />
+          <q-btn
+            outline
+            color="primary"
+            :label="t('actions.refresh')"
+            :title="t('actions.refreshTooltip')"
+            icon="refresh"
+            @click="fetchDetails(props.candidate.idPersona)"
+          />
         </div>
       </q-card-section>
     </q-card>
@@ -115,10 +156,14 @@ import type { Candidate, AnalysisStatus } from "@shared/types/candidate";
 import HorizontalSymbols from "@/components/symbolic/HorizontalSymbols.vue";
 import { useCandidatesStore } from "@/stores/candidates";
 import { useSymbolicBorderRenderer } from "@presentation/composables/useSymbolicBorderRenderer";
+import { useFetchCandidateDetails } from "@presentation/composables/useFetchCandidateDetails";
 import {
   SYSTEM_STATUS_OPTIONS,
   ANALYSIS_STATUS_OPTIONS,
 } from "@shared/constants/status";
+
+const isLoadingDetails = ref(false);
+const { fetchDetails } = useFetchCandidateDetails();
 
 const props = defineProps<{
   candidate: Candidate;
@@ -176,14 +221,28 @@ const drawBorder = () => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
   setTimeout(drawBorder, 50);
+  // Fetch latest details when opening detail view
+  isLoadingDetails.value = true;
+  try {
+    await fetchDetails(props.candidate.idPersona);
+  } catch (e) {
+    console.error("Error fetching candidate details:", e);
+  } finally {
+    isLoadingDetails.value = false;
+  }
 });
 
 watch(
   () => props.candidate.idPersona,
   () => {
     setTimeout(drawBorder, 50);
+    // Re-fetch when candidate changes
+    isLoadingDetails.value = true;
+    fetchDetails(props.candidate.idPersona).finally(() => {
+      isLoadingDetails.value = false;
+    });
   },
 );
 
