@@ -14,8 +14,8 @@
 ## Estado de migración ✅
 
 - Las piezas críticas de la migración están completadas: tipos y constantes, composables, utilidades, usecases y cliente HTTP fueron reubicados siguiendo la estructura de Clean Architecture.
-- Se eliminaron shims y rutas antiguas donde ya no eran necesarios (por ejemplo `src/utils/*` fue removido). El archivo `src/services/apiClient.ts` era un re-export hacia `@infrastructure/http/apiClient` y está listado para eliminación en este PR final.
-- Próximo paso: limpieza final (eliminar shims sobrantes, actualizar README/Proyecto.md y crear PR de cleanup).
+- Se eliminaron shims y rutas antiguas donde ya no eran necesarios (por ejemplo `src/utils/*` fue removido). Los shims `src/services/apiClient.ts`, `src/composables/*` y `src/types/*` han sido eliminados como parte del proceso de limpieza.
+- Próximo paso: limpieza final (actualizar README/Proyecto.md, pulir CHANGELOG y abrir PR final de cleanup).
 
 ## 0. Codigo base
 

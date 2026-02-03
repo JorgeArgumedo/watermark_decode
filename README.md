@@ -137,7 +137,8 @@ Para mantener la calidad del proyecto, todo desarrollador debe adherirse a las s
     - ✅ Correcto: `const candidate = findCandidate(idPersona)`
 2.  **Tipado Estricto**:
     - No usar `any` salvo casos de fuerza mayor justificados.
-    - Definir interfaces para todas las estructuras de datos en `src/types/`.
+    - Definir interfaces para todas las estructuras de datos en `src/shared/types`.    
+
 3.  **Principio de Responsabilidad Única (SRP)**:
     - Si un componente tiene lógica compleja de cálculo, muévela a un `util` o `composable`.
     - Si un componente maneja estado global complejo, usa el `store`.
