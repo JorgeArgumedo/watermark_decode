@@ -1,4 +1,4 @@
-import { apiClient } from "@/services/apiClient";
+import { apiClient } from "@infrastructure/http/apiClient";
 import type { CandidateRepository } from "@/domain/repositories/CandidateRepository";
 import type { CandidateApiDetails } from "@shared/types/api";
 
