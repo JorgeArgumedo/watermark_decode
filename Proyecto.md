@@ -17,6 +17,14 @@
 - Se eliminaron shims y rutas antiguas donde ya no eran necesarios (por ejemplo `src/utils/*` fue removido). Los shims `src/services/apiClient.ts`, `src/composables/*` y `src/types/*` han sido eliminados como parte del proceso de limpieza.
 - Próximo paso: limpieza final (actualizar README/Proyecto.md, pulir CHANGELOG y abrir PR final de cleanup).
 
+### Acciones pendientes (recomendadas)
+
+- Extraer la selección de candidatos a sincronizar y la lógica de actualización a `domain/usecases/SynchronizeCandidatesUseCase` y/o a un nuevo caso de uso `ApplyCandidateApiDataUseCase` para seguir el principio de responsabilidad única.
+- Mover cualquier mapeo y limpieza de datos de API (`updateCandidateWithApiData`, `clearCandidateApiData`) fuera del store y colocarlos en `domain` (o en `infrastructure` como mappers) para centralizar transformación de datos.
+- Revisar `src/services` para mover implementaciones necesarias a `src/infrastructure` o eliminar servicios no referenciados (ya se removió `candidateService.ts`).
+- Revisar componentes y stores para detectar lógica de negocio que deba convertirse en `composables` o `usecases` (ej. notificaciones, decision branching complejo, sincronizaciones periódicas).
+
+
 ## 0. Codigo base
 
 Logica de implementacion:

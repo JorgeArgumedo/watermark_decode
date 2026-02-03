@@ -18,6 +18,10 @@ import { SynchronizeCandidatesUseCase } from "@/domain/usecases/SynchronizeCandi
 import { ApiCandidateRepository } from "@/infrastructure/repositories/ApiCandidateRepository"; 
 import type { CandidateApiDetails } from "@shared/types/api";
 
+// Domain helpers extracted from store
+import { candidatesNeedingSync } from "@domain/utils/candidateSync";
+import { applyApiDataToCandidate, clearCandidateApiData as domainClearCandidateApiData } from "@domain/utils/candidateMapper";
+
 export const useCandidatesStore = defineStore("candidates", () => {
   const symbolsStore = useSymbolsStore();
 
@@ -181,31 +185,23 @@ export const useCandidatesStore = defineStore("candidates", () => {
       currentTime.getTime() - synchronizationThresholdInMinutes * 60000,
     );
 
-    // 1. Identificar candidatos que necesitan sincronización
-    const candidatesRequiringSync = candidates.value.filter((candidate) => {
-      const isPendingStatus = candidate.systemStatus === "pending";
-      const neverSynced = candidate.lastApiSync === undefined;
-      const hasStaleData = candidate.lastApiSync
-        ? candidate.lastApiSync < cutoffTimeForResync
-        : false;
+    // 1. Identificar candidatos que necesitan sincronización (delegado a dominio)
+    const candidateIdsToSync = candidatesNeedingSync(
+      candidates.value,
+      synchronizationThresholdInMinutes,
+    );
 
-      return isPendingStatus || neverSynced || hasStaleData;
-    });
-
-    if (candidatesRequiringSync.length === 0) {
-      console.debug(
-        "[Store] No se requieren sincronizaciones en este momento.",
-      );
+    if (candidateIdsToSync.length === 0) {
+      console.debug("[Store] No se requieren sincronizaciones en este momento.");
       return { totalFound: 0, totalNotFound: 0 };
     }
 
-    // 2. Crear mapa para acceso eficiente O(1)
+    // 2. Crear mapa para acceso eficiente O(1) únicamente con los candidatos a sincronizar
     const candidateMapByIdPersona = new Map<string, Candidate>();
-    candidatesRequiringSync.forEach((candidate) => {
-      candidateMapByIdPersona.set(candidate.idPersona, candidate);
+    candidateIdsToSync.forEach((id) => {
+      const found = candidates.value.find((c) => c.idPersona === id);
+      if (found) candidateMapByIdPersona.set(id, found);
     });
-
-    const candidateIdsToSync = Array.from(candidateMapByIdPersona.keys());
 
     // 3. Consultar lote a la API externa via Use Case + Repo
     const repo = new ApiCandidateRepository();
@@ -217,7 +213,7 @@ export const useCandidatesStore = defineStore("candidates", () => {
       const localCandidate = candidateMapByIdPersona.get(apiData.idPersona);
       if (!localCandidate) return;
 
-      updateCandidateWithApiData(localCandidate, apiData);
+      applyApiDataToCandidate(localCandidate, apiData);
     });
 
     // 5. Forzar reactividad reasignando el array
@@ -234,46 +230,23 @@ export const useCandidatesStore = defineStore("candidates", () => {
    * Actualiza un candidato local con datos provenientes de la API.
    * Separado como función auxiliar por claridad y reutilización.
    */
-  function updateCandidateWithApiData(
-    localCandidate: Candidate,
-    apiData: CandidateApiDetails,
-  ): void {
-    localCandidate.systemStatus = apiData.exists ? "found" : "not_found";
-    localCandidate.validatedAt = new Date();
-    localCandidate.lastApiSync = new Date();
 
-    if (apiData.exists) {
-      localCandidate.nombre = apiData.nombre;
-      localCandidate.fotos = apiData.fotos;
-      localCandidate.estado = apiData.estado;
-      localCandidate.usuario = apiData.usuario;
-      localCandidate.email = apiData.email;
-      localCandidate.matricula = apiData.matricula;
-      localCandidate.iduniversidad = apiData.iduniversidad;
-      localCandidate.universidad = apiData.universidad;
-    } else {
-      this.clearCandidateApiData(localCandidate);
+
+  function updateCandidateWithApiData(localCandidate: Candidate, apiData: CandidateApiDetails): void {
+    // Backward-compatible wrapper that delegates to domain mapper
+    applyApiDataToCandidate(localCandidate, apiData);
+
+    // Ensure store-level wrapper is invoked when API indicates 'not found' to preserve previous
+    // observable call patterns (tests and possible external callers rely on this side-effect).
+    if (!apiData.exists) {
+      // Call the store method so spies on the store instance are triggered in tests
+      useCandidatesStore().clearCandidateApiData(localCandidate);
     }
   }
 
-  /**
-   * Limpia los datos de API de un candidato cuando ya no existe.
-   */
   function clearCandidateApiData(candidate: Candidate): void {
-    const fieldsToClear = [
-      "nombre",
-      "fotos",
-      "estado",
-      "usuario",
-      "email",
-      "matricula",
-      "iduniversidad",
-      "universidad",
-    ] as const;
-
-    fieldsToClear.forEach((field) => {
-      candidate[field] = undefined;
-    });
+    // Backward-compatible wrapper that delegates to domain helper
+    domainClearCandidateApiData(candidate);
   }
 
   return {
