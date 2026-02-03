@@ -17,7 +17,8 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    environment: "happy-dom",
+    environment: "jsdom",
+    setupFiles: ["test/vitest-setup.ts"],
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "lcov"],
@@ -27,6 +28,12 @@ export default defineConfig({
         "*.config.*",
         "src/main.ts",
         "src/**/*.d.ts",
+        "src/i18n/**",
+        "src/router/**",
+        "src/constants/**",
+        "src/layouts/**",
+        "src/App.vue",
+        ".eslintrc.cjs",
       ],
       thresholds: {
         lines: 80,

@@ -50,28 +50,35 @@ El proyecto sigue una arquitectura modular basada en componentes y el patrón de
 
 ```
 src/
-├── assets/          # Recursos estáticos (imágenes, estilos globales)
-├── components/      # Componentes Vue organizados por dominio
-│   ├── candidates/  # Componentes relacionados con candidatos (Lista, Detalle, Item)
-│   ├── common/      # Componentes reutilizables genéricos (SymbolPicker)
-│   ├── input/       # Componentes de entrada de datos (SequenceInput, IdInput)
-│   └── symbolic/    # Componentes de visualización simbólica
-├── composables/     # Lógica reactiva reutilizable (Hooks)
-│   └── useSymbolicBorderRenderer.ts # Hook para el renderizado del borde (DOM manipulation)
-├── layouts/         # Layouts principales de la aplicación
-├── pages/           # Vistas principales (Router Views)
-│   └── AnalysisPage.vue # Página principal de análisis
-├── stores/          # Stores de Pinia (Estado global)
-│   ├── candidates.ts # Gestión de candidatos
-│   └── symbols.ts    # Gestión del set de símbolos
-├── types/           # Definiciones de tipos TypeScript interfaces
-├── utils/           # Funciones puras y lógica algorítmica
-│   ├── border.ts     # Cálculos geométricos y parsing para bordes
-│   ├── decoding.ts   # Lógica de decodificación (Símbolos -> ID)
-│   ├── encoding.ts   # Lógica de codificación (ID -> Símbolos)
-│   ├── validation.ts # Reglas de validación
-│   └── wildcard.ts   # Algoritmo de expansión de comodines
-└── App.vue          # Componente raíz
+├── App.vue                # Componente raíz de la aplicación Vue
+├── main.ts                # Punto de entrada de la aplicación
+├── assets/                # Recursos estáticos (imágenes, fuentes, SVG)
+├── components/            # Componentes Vue organizados por dominio/feature
+│   ├── candidates/        # Componentes para la gestión de candidatos (Lista, Ítem, Detalle)
+│   ├── common/            # Componentes genéricos y reutilizables (Selectores, etc.)
+│   ├── input/             # Componentes especializados en entrada de datos (Formularios)
+│   └── symbolic/          # Componentes para la representación visual de símbolos y bordes
+├── composables/           # Lógica de estado reactiva reutilizable (Hooks de Vue)
+├── constants/             # Constantes centralizadas de la aplicación (Estados, Configuraciones)
+├── i18n/                  # Configuración y archivos de internacionalización (es, en, pt)
+│   ├── en/
+│   ├── es/
+│   └── pt/
+├── layouts/               # Componentes de diseño principal (Layouts)
+├── pages/                 # Componentes de página/pantalla (Vistas de enrutador)
+├── router/                # Configuración del enrutador de Vue Router
+├── services/              # CAPA DE SERVICIOS: Lógica de integración con APIs externas
+│                          # (Actualmente vacío - destinado a los servicios de API)
+├── stores/                # Stores de Pinia para la gestión del estado global
+├── styles/                # Estilos globales y variables (ej. temas Quasar)
+├── types/                 # Definiciones de tipos e interfaces de TypeScript
+└── utils/                 # Funciones puras y lógica algorítmica de utilidad
+    ├── border.ts          # Cálculos geométricos y parsing para bordes simbólicos
+    ├── decoding.ts        # Lógica de decodificación (Símbolos -> ID)
+    ├── encoding.ts        # Lógica de codificación (ID -> Símbolos)
+    ├── symbols.ts         # Configuración y constantes del set de símbolos
+    ├── validation.ts      # Reglas de validación de entrada
+    └── wildcard.ts        # Algoritmo de expansión de comodines ('?')
 ```
 
 ---
@@ -80,7 +87,7 @@ src/
 
 ### Prerrequisitos
 
-- Node.js (v18+ recomendado)
+- Node.js (v24+ recomendado)
 - npm o yarn
 
 ### Instalación

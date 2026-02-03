@@ -23,10 +23,7 @@
     </q-input>
 
     <q-slide-transition>
-      <div
-        v-if="showPicker"
-        class="q-mb-md border-radius-inherit bg-grey-1"
-      >
+      <div v-if="showPicker" class="q-mb-md border-radius-inherit bg-grey-1">
         <SymbolPicker @select="onSymbolSelect" />
       </div>
     </q-slide-transition>
@@ -64,22 +61,26 @@ const onSymbolSelect = (symbol: string) => {
   model.value += symbol;
 };
 
-watch(model, (newVal) => {
-  if (!newVal) {
-    error.value = "";
-    emit("valid", false);
-    return;
-  }
+watch(
+  model,
+  (newVal) => {
+    if (!newVal) {
+      error.value = "";
+      emit("valid", false);
+      return;
+    }
 
-  const validation = validateSymbolicSequence(newVal, symbolsStore.symbols);
-  if (!validation.valid) {
-    error.value = validation.error
-      ? t(validation.error)
-      : t("errors.invalidSequence");
-    emit("valid", false);
-  } else {
-    error.value = "";
-    emit("valid", true);
-  }
-});
+    const validation = validateSymbolicSequence(newVal, symbolsStore.symbols);
+    if (!validation.valid) {
+      error.value = validation.error
+        ? t(validation.error)
+        : t("errors.invalidSequence");
+      emit("valid", false);
+    } else {
+      error.value = "";
+      emit("valid", true);
+    }
+  },
+  { immediate: true },
+);
 </script>

@@ -1,14 +1,11 @@
 <template>
-  <div
-    ref="container"
-    class="symbolic-border-container relative-position"
-  >
+  <div ref="container" class="symbolic-border-container relative-position">
     <slot />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, onMounted, onUnmounted, watch, computed } from "vue";
 import { useSymbolicBorderRenderer } from "@/composables/useSymbolicBorderRenderer";
 import { SYMBOLS } from "@/utils/symbols";
 
@@ -28,6 +25,8 @@ const props = withDefaults(defineProps<Props>(), {
   borderColor: "#000",
   glyphColor: "#fff",
 });
+
+let resizeObserver: ResizeObserver | null = null;
 
 const container = ref<HTMLElement | null>(null);
 const { renderBorder } = useSymbolicBorderRenderer();
@@ -59,7 +58,6 @@ const updateBorder = () => {
 watch(() => props.idPersona, updateBorder);
 watch(() => props.borderWidth, updateBorder);
 watch(() => props.sides, updateBorder, { deep: true });
-// Deep watch options if needed
 
 onMounted(() => {
   // Add small delay to ensure layout
@@ -70,6 +68,19 @@ onMounted(() => {
     requestAnimationFrame(updateBorder);
   });
   if (container.value) ro.observe(container.value);
+});
+
+onMounted(() => {
+  setTimeout(updateBorder, 50);
+
+  resizeObserver = new ResizeObserver(() => {
+    requestAnimationFrame(updateBorder);
+  });
+  if (container.value) resizeObserver.observe(container.value);
+});
+
+onUnmounted(() => {
+  resizeObserver?.disconnect();
 });
 </script>
 

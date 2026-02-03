@@ -53,7 +53,7 @@ describe("decoding utilities", () => {
       const emptyMap = new Map<string, number>();
       const result = symbolsToInt("☀", emptyMap);
       expect(result.ok).toBe(false);
-      expect(result.error).toContain("Empty symbol map");
+      expect(result.error).toContain("Empty symbol index map");
     });
 
     it("should work with production symbols", () => {

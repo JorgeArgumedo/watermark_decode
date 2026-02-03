@@ -15,6 +15,15 @@ export interface Candidate {
   source: CandidateSource; // Origin of candidate
   createdAt: Date;
   validatedAt?: Date;
+  nombre?: string;
+  fotos?: string; // URLs separadas por ","
+  estado?: string; // estado es el acceso que tioene el usuario actualmente
+  usuario?: string; // usuario es el nombre del usuario
+  email?: string; // email es el correo del usuario
+  matricula?: string; // matricula es el numero de matricula del usuario
+  iduniversidad?: string | number; // iduniversidad es el id de la universidad
+  universidad?: string; // universidad es el nombre de la institucion a la que pertenece el usuario
+  lastApiSync?: Date;
 }
 
 export interface CandidateInput {

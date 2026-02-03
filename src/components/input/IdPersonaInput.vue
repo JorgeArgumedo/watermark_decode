@@ -35,22 +35,26 @@ const model = computed({
   set: (value) => emit("update:modelValue", value),
 });
 
-watch(model, (newVal) => {
-  if (!newVal) {
-    error.value = "";
-    emit("valid", false);
-    return;
-  }
+watch(
+  model,
+  (newVal) => {
+    if (!newVal) {
+      error.value = "";
+      emit("valid", false);
+      return;
+    }
 
-  const validation = validateIdPersona(newVal);
-  if (!validation.valid) {
-    error.value = validation.error
-      ? t(validation.error)
-      : t("errors.invalidId");
-    emit("valid", false);
-  } else {
-    error.value = "";
-    emit("valid", true);
-  }
-});
+    const validation = validateIdPersona(newVal);
+    if (!validation.valid) {
+      error.value = validation.error
+        ? t(validation.error)
+        : t("errors.invalidId");
+      emit("valid", false);
+    } else {
+      error.value = "";
+      emit("valid", true);
+    }
+  },
+  { immediate: true },
+);
 </script>

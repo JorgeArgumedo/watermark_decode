@@ -13,6 +13,8 @@ import type {
 import { expandWildcards } from "@/utils/wildcard";
 import { decodeSymbolicSequenceToId } from "@/utils/decoding";
 import { useSymbolsStore } from "@/stores/symbols";
+import { candidateService } from "@/services/candidateService";
+import type { CandidateApiDetails } from "@/types/api";
 
 export const useCandidatesStore = defineStore("candidates", () => {
   const symbolsStore = useSymbolsStore();
@@ -86,12 +88,16 @@ export const useCandidatesStore = defineStore("candidates", () => {
       candidates.value.map((candidate) => candidate.idPersona),
     );
 
-    const uniqueNewCandidates = candidatesToRegister.filter(
-      (candidate) => !existingIds.has(candidate.idPersona),
-    );
+    // Map by idPersona to deduplicate the incoming list itself
+    const uniqueIncoming = new Map<string, Candidate>();
+    candidatesToRegister.forEach((candidate) => {
+      if (!existingIds.has(candidate.idPersona)) {
+        uniqueIncoming.set(candidate.idPersona, candidate);
+      }
+    });
 
-    if (uniqueNewCandidates.length > 0) {
-      candidates.value.push(...uniqueNewCandidates);
+    if (uniqueIncoming.size > 0) {
+      candidates.value.push(...uniqueIncoming.values());
     }
   }
 
@@ -121,7 +127,9 @@ export const useCandidatesStore = defineStore("candidates", () => {
     candidateId: string,
     statusUpdates: Partial<Pick<Candidate, "systemStatus" | "analysisStatus">>,
   ) {
-    const targetCandidate = candidates.value.find((c) => c.id === candidateId);
+    const targetCandidate = candidates.value.find(
+      (candidate) => candidate.id === candidateId,
+    );
 
     if (targetCandidate) {
       if (statusUpdates.systemStatus !== undefined) {
@@ -184,6 +192,108 @@ export const useCandidatesStore = defineStore("candidates", () => {
     return successfullyGeneratedCandidates.length;
   }
 
+  // Añadir esta acción dentro del return del store existente:
+  async function synchronizeCandidatesWithExternalApi() {
+    const synchronizationThresholdInMinutes = 5;
+    const currentTime = new Date();
+    const cutoffTimeForResync = new Date(
+      currentTime.getTime() - synchronizationThresholdInMinutes * 60000,
+    );
+
+    // 1. Identificar candidatos que necesitan sincronización
+    const candidatesRequiringSync = candidates.value.filter((candidate) => {
+      const isPendingStatus = candidate.systemStatus === "pending";
+      const neverSynced = candidate.lastApiSync === undefined;
+      const hasStaleData = candidate.lastApiSync
+        ? candidate.lastApiSync < cutoffTimeForResync
+        : false;
+
+      return isPendingStatus || neverSynced || hasStaleData;
+    });
+
+    if (candidatesRequiringSync.length === 0) {
+      console.debug(
+        "[Store] No se requieren sincronizaciones en este momento.",
+      );
+      return { totalFound: 0, totalNotFound: 0 };
+    }
+
+    // 2. Crear mapa para acceso eficiente O(1)
+    const candidateMapByIdPersona = new Map<string, Candidate>();
+    candidatesRequiringSync.forEach((candidate) => {
+      candidateMapByIdPersona.set(candidate.idPersona, candidate);
+    });
+
+    const candidateIdsToSync = Array.from(candidateMapByIdPersona.keys());
+
+    // 3. Consultar lote a la API externa
+    const apiResponse =
+      await candidateService.fetchDetailsForCandidates(candidateIdsToSync);
+
+    // 4. Actualizar candidatos usando el mapa (operación eficiente)
+    apiResponse.results.forEach((apiData: CandidateApiDetails) => {
+      const localCandidate = candidateMapByIdPersona.get(apiData.idPersona);
+      if (!localCandidate) return;
+
+      this.updateCandidateWithApiData(localCandidate, apiData);
+    });
+
+    // 5. Forzar reactividad reasignando el array
+    candidates.value = [...candidates.value];
+
+    console.info(
+      `[Store] Sincronización completada. Encontrados: ${apiResponse.summary.totalFound}, No encontrados: ${apiResponse.summary.totalNotFound}`,
+    );
+
+    return apiResponse.summary;
+  }
+
+  /**
+   * Actualiza un candidato local con datos provenientes de la API.
+   * Separado como función auxiliar por claridad y reutilización.
+   */
+  function updateCandidateWithApiData(
+    localCandidate: Candidate,
+    apiData: CandidateApiDetails,
+  ): void {
+    localCandidate.systemStatus = apiData.exists ? "found" : "not_found";
+    localCandidate.validatedAt = new Date();
+    localCandidate.lastApiSync = new Date();
+
+    if (apiData.exists) {
+      localCandidate.nombre = apiData.nombre;
+      localCandidate.fotos = apiData.fotos;
+      localCandidate.estado = apiData.estado;
+      localCandidate.usuario = apiData.usuario;
+      localCandidate.email = apiData.email;
+      localCandidate.matricula = apiData.matricula;
+      localCandidate.iduniversidad = apiData.iduniversidad;
+      localCandidate.universidad = apiData.universidad;
+    } else {
+      this.clearCandidateApiData(localCandidate);
+    }
+  }
+
+  /**
+   * Limpia los datos de API de un candidato cuando ya no existe.
+   */
+  function clearCandidateApiData(candidate: Candidate): void {
+    const fieldsToClear = [
+      "nombre",
+      "fotos",
+      "estado",
+      "usuario",
+      "email",
+      "matricula",
+      "iduniversidad",
+      "universidad",
+    ] as const;
+
+    fieldsToClear.forEach((field) => {
+      candidate[field] = undefined;
+    });
+  }
+
   return {
     // State
     candidates,
@@ -212,5 +322,8 @@ export const useCandidatesStore = defineStore("candidates", () => {
     clearAll: clearAllCandidates,
     getCandidateById: findCandidateById,
     createCandidate: createCandidateNode,
+    synchronizeCandidatesWithExternalApi,
+    updateCandidateWithApiData,
+    clearCandidateApiData,
   };
 });
