@@ -1,4 +1,6 @@
-export * from "@presentation/composables/useSymbolicBorderRenderer";
+import { encodeIdToSymbolicSequence } from "@/utils/encoding";
+import { SYMBOLS } from "@/utils/symbols";
+import { buildSidePath, parsePixels, formatCoordinate } from "@/utils/border";
 
 export interface BorderOptions {
   number?: number | string;
@@ -120,7 +122,6 @@ export function useSymbolicBorderRenderer() {
       Array.isArray(options.symbols) && options.symbols.length
         ? options.symbols
         : [...SYMBOLS];
-    const base = symbolsArray.length || DEFAULT_BASE;
 
     // 2. Ensure SVG overlay exists
     let svg = element.querySelector(
@@ -278,16 +279,6 @@ export function useSymbolicBorderRenderer() {
       bandPath.setAttribute("fill", borderColor);
     } else {
       bandPath.setAttribute("d", ""); // No filled band for partial sides in this impl?
-      // Original script says: if (!allSides) bandPath d='', CENTER PATH gets stroke
-      // Wait, centerHeightecking original...
-      // "if (allSides) ... else { bandPath d=''; ... centerPath stroke width ... }"
-      // It seems partial borders are rendered as strokes on centerPath in the original??
-      // Actually no, look closely at original:
-      // If !allSides:
-      // centerPath gets stroke attributes (borderWidth etc).
-      // centerPath D is calculated.
-      // But wait, centerPath is also used for TEXT.
-      // Original code re-calculates centerPath d for text later if needed.
     }
 
     // CENTER PATH (For Text and/or Stroke)
@@ -316,14 +307,11 @@ export function useSymbolicBorderRenderer() {
       if (centerD) {
         centerPath.setAttribute("d", centerD);
       } else {
-        // Fallback
-        // ... (implementation of fallback from original)
         if (sides.includes("left"))
           centerPath.setAttribute(
             "d",
             `M ${formatCoordinate(Math.round(borderWidth / 2))} ${formatCoordinate(0)} V ${formatCoordinate(outerH)}`,
           );
-        // ... simplify for now, assuming buildSidePath works
       }
 
       centerPath.setAttribute("stroke", borderColor);
@@ -333,18 +321,11 @@ export function useSymbolicBorderRenderer() {
       centerPath.setAttribute("stroke", "transparent");
     }
 
-    // TEXT PATH alignment
-    // Re-calculate centerPath specifically for Text if we want it centered in the "Band" or "Stroke"
-    // The original code does:
-    // "IMPORTANT: compute & set centerPath midline for text BEFORE building text"
-    // "const centerInset_for_text = Math.ceil(borderWidth / 2) + padGlyph;"
-    // It seems they overwrite centerPath d for text?
-
     const centerInsetForText = Math.ceil(borderWidth / 2) + padGlyph;
     const tcenterX = centerInsetForText;
     const tcenterY = centerInsetForText;
     const tcenterWidth = Math.max(0, outerW - centerInsetForText * 2);
-    const tcenterHeight = Math.max(0, outerH - centerInsetForText * 2); // Original had *2
+    const tcenterHeight = Math.max(0, outerH - centerInsetForText * 2);
 
     const centerDForText = buildSidePath(
       tcenterX,
@@ -361,7 +342,6 @@ export function useSymbolicBorderRenderer() {
     svg.setAttribute("viewBox", `0 0 ${outerW} ${outerH}`);
 
     // TEXT GENERATION
-    // Convert number to symbols
     const numberStr = String(number);
     const symbolicSequence = encodeIdToSymbolicSequence(
       numberStr,
@@ -370,9 +350,6 @@ export function useSymbolicBorderRenderer() {
     const unitText =
       sepPos === "inline" ? separator + symbolicSequence : symbolicSequence;
 
-    // Repeat logic
-    // We need path length. In Vue/JSdom this might be tricky if not rendered.
-    // In browser it works.
     let pathLen = 300;
     try {
       pathLen = centerPath.getTotalLength() || 300;
@@ -380,7 +357,6 @@ export function useSymbolicBorderRenderer() {
       /* ignore */
     }
 
-    // Sample text len approx
     const estCharWidth = glyphPx * 0.8; // Approx
     const sampleLen = unitText.length * estCharWidth || 40;
 
@@ -393,28 +369,25 @@ export function useSymbolicBorderRenderer() {
 
     if (sepPos === "start") {
       sepTextPath.textContent = separator;
-      // Alignments logic from original...
     } else {
       sepTextPath.textContent = "";
-      symTextPath.setAttribute("startOffset", "50%");
-      if (symTextPath.parentElement)
-        symTextPath.parentElement.setAttribute("text-anchor", "middle");
     }
-
-    // Metadata
-    symTextPath.dataset.digits = String(
-      encodeIdToSymbolicSequence(numberStr, symbolsArray).length,
-    ); // encodeIdToSymbolicSequence returns str, length is chars.
-    // Original used intToDigits(number, base).length.
-    // intToSymbolSeq returns correct sequence length.
 
     return {
       svg,
-      base,
+      update: () => renderBorder(element, options),
+      destroy: () => {
+        if (svg && svg.parentElement) svg.parentElement.removeChild(svg);
+        // Restore paddings
+        if (element.dataset._sb_padding_applied) {
+          element.style.paddingTop = element.dataset._sb_padding_top || "";
+          element.style.paddingRight = element.dataset._sb_padding_right || "";
+          element.style.paddingBottom = element.dataset._sb_padding_bottom || "";
+          element.style.paddingLeft = element.dataset._sb_padding_left || "";
+        }
+      },
     };
   }
 
-  return {
-    renderBorder,
-  };
+  return { renderBorder, ensurePadding };
 }

@@ -3,7 +3,7 @@ import { mount } from "@vue/test-utils";
 import SymbolicBorder from "@/components/symbolic/SymbolicBorder.vue";
 
 // Mock the renderer composable
-vi.mock("@/composables/useSymbolicBorderRenderer", () => ({
+vi.mock("@presentation/composables/useSymbolicBorderRenderer", () => ({
   useSymbolicBorderRenderer: () => ({
     renderBorder: vi.fn(),
   }),

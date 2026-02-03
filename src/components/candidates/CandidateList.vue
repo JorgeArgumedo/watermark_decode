@@ -257,7 +257,7 @@ import { useI18n } from "vue-i18n";
 import { useQuasar } from "quasar";
 import { useCandidatesStore } from "@/stores/candidates";
 import CandidateItem from "./CandidateItem.vue";
-import { useCandidateFilter } from "@/composables/useCandidateFilter";
+import { useCandidateFilter } from "@presentation/composables/useCandidateFilter";
 import {
   SYSTEM_STATUS_OPTIONS,
   ANALYSIS_STATUS_OPTIONS,

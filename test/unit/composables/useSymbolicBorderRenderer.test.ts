@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { useSymbolicBorderRenderer } from "@/composables/useSymbolicBorderRenderer";
+import { useSymbolicBorderRenderer } from "@presentation/composables/useSymbolicBorderRenderer";
 
 describe("useSymbolicBorderRenderer", () => {
   let element: HTMLElement;
