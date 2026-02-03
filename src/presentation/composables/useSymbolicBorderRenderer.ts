@@ -1,6 +1,6 @@
-import { encodeIdToSymbolicSequence } from "@/utils/encoding";
-import { SYMBOLS } from "@/utils/symbols";
-import { buildSidePath, parsePixels, formatCoordinate } from "@/utils/border";
+import { encodeIdToSymbolicSequence } from "@domain/utils/encoding";
+import { SYMBOLS } from "@shared/utils/symbols";
+import { buildSidePath, parsePixels, formatCoordinate } from "@shared/utils/border";
 
 export interface BorderOptions {
   number?: number | string;

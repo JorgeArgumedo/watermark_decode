@@ -3,8 +3,8 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { symbolsToInt, createSymbolMap } from "@/utils/decoding";
-import { SYMBOLS } from "@/utils/symbols";
+import { symbolsToInt, createSymbolMap } from "@domain/utils/decoding";
+import { SYMBOLS } from "@shared/utils/symbols";
 
 describe("decoding utilities", () => {
   describe("createSymbolMap", () => {

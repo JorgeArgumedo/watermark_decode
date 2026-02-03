@@ -100,7 +100,7 @@ Al desarrollar nuevas funcionalidades, sigue este proceso:
 ### Ejemplo de Test Unitario
 
 ```typescript
-import { expandWildcards } from "@/utils/wildcard";
+import { expandWildcards } from "@domain/utils/wildcard";
 
 describe("Wildcard Expansion", () => {
   it("should generate 3 candidates for a single wildcard with 3 symbols", () => {

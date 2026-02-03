@@ -67,7 +67,7 @@ import CandidateList from "@/components/candidates/CandidateList.vue";
 import CandidateDetail from "@/components/candidates/CandidateDetail.vue";
 import { useCandidatesStore } from "@/stores/candidates";
 import { useSymbolsStore } from "@/stores/symbols";
-import { encodeIdToSymbolicSequence } from "@/utils/encoding";
+import { encodeIdToSymbolicSequence } from "@domain/utils/encoding";
 import { useQuasar } from "quasar";
 
 import type { Candidate } from "@shared/types/candidate";

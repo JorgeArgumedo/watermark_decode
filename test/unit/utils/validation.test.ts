@@ -3,8 +3,8 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { validateSequence, validateIdPersona } from "@/utils/validation";
-import { SYMBOLS } from "@/utils/symbols";
+import { validateSequence, validateIdPersona } from "@domain/utils/validation";
+import { SYMBOLS } from "@shared/utils/symbols";
 
 describe("validation utilities", () => {
   describe("validateSequence", () => {

@@ -3,8 +3,8 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { intToDigits, digitsToSymbols, intToSymbolSeq } from "@/utils/encoding";
-import { SYMBOLS } from "@/utils/symbols";
+import { intToDigits, digitsToSymbols, intToSymbolSeq } from "@domain/utils/encoding";
+import { SYMBOLS } from "@shared/utils/symbols";
 
 describe("encoding utilities", () => {
   describe("intToDigits", () => {

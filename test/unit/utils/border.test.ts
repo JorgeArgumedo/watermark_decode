@@ -4,7 +4,7 @@ import {
   formatCoordinate,
   parsePixels,
   buildSidePath,
-} from "@/utils/border";
+} from "@shared/utils/border";
 
 describe("border utils", () => {
   describe("toNumber", () => {

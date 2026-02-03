@@ -1,5 +1,5 @@
-import { expandWildcards } from "@/utils/wildcard";
-import { decodeSymbolicSequenceToId } from "@/utils/decoding";
+import { expandWildcards } from "@domain/utils/wildcard";
+import { decodeSymbolicSequenceToId } from "@domain/utils/decoding";
 import type { Candidate, CandidateSource } from "@shared/types/candidate";
 
 /**

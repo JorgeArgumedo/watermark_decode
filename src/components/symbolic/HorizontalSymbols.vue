@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { encodeIdToSymbolicSequence } from "@/utils/encoding";
+import { encodeIdToSymbolicSequence } from "@domain/utils/encoding";
 
 const { t } = useI18n();
 

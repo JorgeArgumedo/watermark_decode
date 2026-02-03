@@ -10,7 +10,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch, computed } from "vue";
 import { useSymbolicBorderRenderer } from "@presentation/composables/useSymbolicBorderRenderer";
-import { SYMBOLS } from "@/utils/symbols";
+import { SYMBOLS } from "@shared/utils/symbols";
 
 interface Props {
   idPersona: string;

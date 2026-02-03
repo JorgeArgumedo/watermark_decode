@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { expandWildcards, countWildcards } from "@/utils/wildcard";
+import { expandWildcards, countWildcards } from "@domain/utils/wildcard";
 
 describe("wildcard utilities", () => {
   describe("countWildcards", () => {

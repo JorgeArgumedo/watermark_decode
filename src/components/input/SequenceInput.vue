@@ -37,7 +37,7 @@
 import { ref, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import SymbolPicker from "@/components/common/SymbolPicker.vue";
-import { validateSymbolicSequence } from "@/utils/validation";
+import { validateSymbolicSequence } from "@domain/utils/validation";
 import { useSymbolsStore } from "@/stores/symbols";
 
 const props = defineProps<{

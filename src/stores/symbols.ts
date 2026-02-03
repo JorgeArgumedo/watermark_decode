@@ -4,8 +4,8 @@
 
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
-import { SYMBOLS, DEFAULT_BASE } from "@/utils/symbols";
-import { createSymbolIndexMap } from "@/utils/decoding";
+import { SYMBOLS, DEFAULT_BASE } from "@shared/utils/symbols";
+import { createSymbolIndexMap } from "@domain/utils/decoding";
 
 export const useSymbolsStore = defineStore("symbols", () => {
   // State
