@@ -69,7 +69,7 @@ import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import SequenceInput from "./SequenceInput.vue";
 import IdPersonaInput from "./IdPersonaInput.vue";
-import { countWildcards } from "@/utils/wildcard";
+import { countWildcards } from "@domain/utils/wildcard";
 
 const { t } = useI18n();
 

@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { validateIdPersona } from "@/utils/validation";
+import { validateIdPersona } from "@domain/utils/validation";
 
 const props = defineProps<{
   modelValue: string;
