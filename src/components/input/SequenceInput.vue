@@ -23,7 +23,10 @@
     </q-input>
 
     <q-slide-transition>
-      <div v-if="showPicker" class="q-mb-md border-radius-inherit bg-grey-1">
+      <div
+        v-if="showPicker"
+        class="q-mb-md border-radius-inherit bg-grey-1"
+      >
         <SymbolPicker @select="onSymbolSelect" />
       </div>
     </q-slide-transition>

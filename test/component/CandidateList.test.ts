@@ -102,8 +102,8 @@ describe("CandidateList.vue", () => {
           },
           CandidateItem: defineComponent({
             name: "CandidateItem",
-            template: `<div>{{ candidate?.id }}</div>`,
             props: ["candidate", "selected"],
+            template: `<div>{{ candidate?.id }}</div>`,
           }),
         },
       },

@@ -86,7 +86,7 @@ export function validateIdPersona(idPersona: string): ValidationResult {
     if (numericValue > MAX_BIGINT_UNSIGNED) {
       return { valid: false, error: "errors.idTooLarge" };
     }
-  } catch (_conversionError) {
+  } catch {
     return { valid: false, error: "errors.invalidNumberFormat" };
   }
 

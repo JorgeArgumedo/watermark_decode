@@ -23,5 +23,23 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off'
-  }
+  },
+overrides: [
+  {
+    files: ["**/*.test.ts", "**/*.spec.ts", "test/**/*"],
+    rules: {
+      // Vue rules que no tienen sentido en tests
+      "vue/one-component-per-file": "off",
+      "vue/require-prop-types": "off",
+
+      // TS rules que son ruido en tests
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^_" }
+      ],
+    },
+  },
+],
+
 }

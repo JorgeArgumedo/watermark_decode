@@ -1,8 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { setActivePinia, createPinia } from "pinia";
 import { useCandidatesStore } from "@/stores/candidates";
 import { useSymbolsStore } from "@/stores/symbols";
-import type { Candidate } from "@/types/candidate";
 
 describe("Candidates Store", () => {
   beforeEach(() => {

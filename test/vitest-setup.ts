@@ -41,7 +41,7 @@ config.global.plugins = [
 ];
 
 // Helper to mock fully chainable dialog behavior
-export const mockDialog = (opts: any) => {
+export const mockDialog = (_opts: any) => {
   const result: any = {
     onOk: (cb: any) => {
       if (typeof cb === "function") cb();

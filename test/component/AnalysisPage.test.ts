@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { mount } from "@vue/test-utils";
 import { defineComponent } from "vue";
 import AnalysisPage from "@/pages/AnalysisPage.vue";
@@ -9,21 +9,21 @@ import { useCandidatesStore } from "@/stores/candidates";
 // Define robust stubs
 const InputTabsStub = defineComponent({
   name: "InputTabs",
-  template: '<div class="input-tabs-stub"></div>',
   emits: ["submit-id", "submit-sequence"],
+  template: '<div class="input-tabs-stub"></div>',
 });
 
 const CandidateListStub = defineComponent({
   name: "CandidateList",
-  template: '<div class="candidate-list-stub"></div>',
   props: ["selectedId"],
   emits: ["select"],
+  template: '<div class="candidate-list-stub"></div>',
 });
 
 const CandidateDetailStub = defineComponent({
   name: "CandidateDetail",
-  template: '<div class="candidate-detail-stub"></div>',
   props: ["candidate"],
+  template: '<div class="candidate-detail-stub"></div>',
 });
 
 describe("AnalysisPage.vue", () => {

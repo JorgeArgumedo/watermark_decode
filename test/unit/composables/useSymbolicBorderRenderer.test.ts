@@ -7,16 +7,18 @@ describe("useSymbolicBorderRenderer", () => {
   beforeEach(() => {
     element = document.createElement("div");
     // Mock getComputedStyle
-    vi.spyOn(window, "getComputedStyle").mockImplementation((el: Element) => {
-      return {
-        paddingTop: "0px",
-        paddingRight: "0px",
-        paddingBottom: "0px",
-        paddingLeft: "0px",
-        fontSize: "16px",
-        position: "static",
-      } as CSSStyleDeclaration;
-    });
+    vi.spyOn(window, "getComputedStyle").mockImplementation(
+      (_element: Element) => {
+        return {
+          paddingTop: "0px",
+          paddingRight: "0px",
+          paddingBottom: "0px",
+          paddingLeft: "0px",
+          fontSize: "16px",
+          position: "static",
+        } as CSSStyleDeclaration;
+      },
+    );
     document.body.appendChild(element);
   });
 

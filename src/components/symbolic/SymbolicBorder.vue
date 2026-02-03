@@ -1,5 +1,8 @@
 <template>
-  <div ref="container" class="symbolic-border-container relative-position">
+  <div
+    ref="container"
+    class="symbolic-border-container relative-position"
+  >
     <slot />
   </div>
 </template>

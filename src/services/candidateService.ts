@@ -7,7 +7,6 @@ import type {
   CandidateDetailsRequest,
   CandidateDetailsResponse,
   CandidateApiDetails,
-  ApiError,
 } from "@/types/api";
 
 class CandidateService {

@@ -7,6 +7,7 @@ import { createI18n } from "vue-i18n";
 // Stub simple para QInput
 const QInputStub = defineComponent({
   name: "QInput",
+  props: ["modelValue", "error", "errorMessage"],
   template: `
     <div class="q-input-stub">
       <input 
@@ -17,7 +18,6 @@ const QInputStub = defineComponent({
       <div v-if="error" class="error-message">{{ errorMessage }}</div>
     </div>
   `,
-  props: ["modelValue", "error", "errorMessage"],
 });
 
 describe("IdPersonaInput.vue", () => {

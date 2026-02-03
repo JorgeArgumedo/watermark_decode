@@ -9,8 +9,8 @@ import { useSymbolsStore } from "@/stores/symbols";
 // Define robust stubs
 const QInputStub = defineComponent({
   name: "QInput",
-  template: '<div class="q-input-stub"><slot name="append" /></div>',
   props: ["modelValue", "error", "errorMessage"],
+  template: '<div class="q-input-stub"><slot name="append" /></div>',
 });
 
 const QBtnStub = defineComponent({
@@ -21,8 +21,8 @@ const QBtnStub = defineComponent({
 
 const SymbolPickerStub = defineComponent({
   name: "SymbolPicker",
-  template: '<div class="symbol-picker-stub"></div>',
   emits: ["select"],
+  template: '<div class="symbol-picker-stub"></div>',
 });
 
 describe("SequenceInput.vue", () => {

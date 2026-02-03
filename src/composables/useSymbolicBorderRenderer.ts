@@ -42,7 +42,7 @@ export function useSymbolicBorderRenderer() {
       document.body.appendChild(tmp);
       textPx = parseFloat(window.getComputedStyle(tmp).fontSize) || 13;
       document.body.removeChild(tmp);
-    } catch (e) {
+    } catch {
       textPx = 13;
     }
 
@@ -378,7 +378,7 @@ export function useSymbolicBorderRenderer() {
     let pathLen = 300;
     try {
       pathLen = centerPath.getTotalLength() || 300;
-    } catch (e) {
+    } catch {
       /* ignore */
     }
 

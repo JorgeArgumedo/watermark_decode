@@ -36,7 +36,7 @@ const symbolicSequence = computed(() => {
   if (props.idPersona) {
     try {
       return encodeIdToSymbolicSequence(props.idPersona);
-    } catch (e) {
+    } catch {
       return "?";
     }
   }
