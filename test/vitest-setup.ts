@@ -40,6 +40,18 @@ config.global.plugins = [
   ],
 ];
 
+// Silence console output during tests to avoid noisy CI logs. Individual tests can
+// spy on console methods if they need to assert on logs.
+const originalConsole = { ...global.console };
+(global as any).console = {
+  ...originalConsole,
+  error: vi.fn(),
+  warn: vi.fn(),
+  info: vi.fn(),
+  log: vi.fn(),
+  debug: vi.fn(),
+};
+
 // Helper to mock fully chainable dialog behavior
 export const mockDialog = (_opts: any) => {
   const result: any = {

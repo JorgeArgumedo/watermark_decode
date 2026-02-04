@@ -142,7 +142,7 @@
 
       </q-card-section>
 
-      <q-card-actions align="right" class="detail-actions">
+      <q-card-actions align="right" class="detail-actions detail-actions-sticky">
         <q-btn color="positive" :label="t('actions.approve')" icon="thumb_up"
           :disable="candidate.analysisStatus === 'approved'" @click="updateAnalysisStatus('approved')" />
         <q-btn color="negative" :label="t('actions.exclude')" icon="block"
@@ -253,6 +253,8 @@ const formatDate = (date?: Date) =>
   flex: 1 1 auto;
   min-height: 0; /* critical to avoid cut-off when using overflow-auto inside flex */
   overflow: auto;
+  /* space for sticky actions */
+  padding-bottom: 3.5rem;
 }
   
 .detail-actions {
@@ -263,6 +265,13 @@ const formatDate = (date?: Date) =>
   padding: 0.75rem 0.5rem;
   border-top: 1px solid #eee;
   background: rgba(255,255,255,0.98);
+}
+
+.detail-actions-sticky {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  backdrop-filter: blur(2px);
 }
 
 .photos-grid {
