@@ -97,6 +97,12 @@ export function useSymbolicBorderRenderer() {
       element.dataset._sb_setPosition = "1";
     }
 
+    // Ensure SVG will be clipped to the element bounds to avoid overlapping siblings
+    if (!element.dataset._sb_overflow_saved) {
+      element.dataset._sb_overflow_saved = computed.overflow || "";
+      element.style.overflow = "hidden";
+    }
+
     // Default options
     const number = options.number || 0;
     let sides = Array.isArray(options.sides)
@@ -141,10 +147,36 @@ export function useSymbolicBorderRenderer() {
       svg.style.width = "100%";
       svg.style.height = "100%";
       svg.style.pointerEvents = "none";
-      svg.style.overflow = "visible";
-      svg.style.zIndex = "999";
+      // Clip to the container and render behind content
+      svg.style.overflow = "hidden";
+      svg.style.zIndex = "0";
       svg.dataset.createdBy = "symbolic-border";
       element.appendChild(svg);
+
+      // Automatically re-render on resize to keep watermark aligned to the container edge
+      try {
+        if (typeof ResizeObserver !== "undefined") {
+          const ro = new ResizeObserver(() => {
+            requestAnimationFrame(() => renderBorder(element, options));
+          });
+          ro.observe(element);
+          (svg as any)._sb_ro = ro;
+        }
+      } catch (e) {
+        /* ignore: ResizeObserver not available */
+      }
+
+      // Fallback: listen window resize/orientation events as well (attach only once)
+      try {
+        if (!(svg as any)._sb_onresize) {
+          const onResize = () => requestAnimationFrame(() => renderBorder(element, options));
+          window.addEventListener("resize", onResize);
+          window.addEventListener("orientationchange", onResize);
+          (svg as any)._sb_onresize = onResize;
+        }
+      } catch (e) {
+        /* ignore */
+      }
 
       // Center Path
       centerPath = document.createElementNS(
@@ -407,12 +439,51 @@ export function useSymbolicBorderRenderer() {
     symTextPath.dataset.digits = String(
       encodeIdToSymbolicSequence(numberStr, symbolsArray).length,
     ); // encodeIdToSymbolicSequence returns str, length is chars.
-    // Original used intToDigits(number, base).length.
-    // intToSymbolSeq returns correct sequence length.
 
     return {
       svg,
       base,
+      update: () => renderBorder(element, options),
+      destroy: () => {
+        // Disconnect ResizeObserver
+        try {
+          if ((svg as any)._sb_ro) (svg as any)._sb_ro.disconnect();
+        } catch (e) {
+          /* ignore */
+        }
+
+        // Remove window handlers
+        try {
+          if ((svg as any)._sb_onresize) {
+            window.removeEventListener("resize", (svg as any)._sb_onresize);
+            window.removeEventListener("orientationchange", (svg as any)._sb_onresize);
+          }
+        } catch (e) {
+          /* ignore */
+        }
+
+        // Remove SVG element
+        if (svg && svg.parentElement) svg.parentElement.removeChild(svg);
+
+        // Restore paddings
+        if (element.dataset._sb_padding_applied) {
+          element.style.paddingTop = element.dataset._sb_padding_top || "";
+          element.style.paddingRight = element.dataset._sb_padding_right || "";
+          element.style.paddingBottom = element.dataset._sb_padding_bottom || "";
+          element.style.paddingLeft = element.dataset._sb_padding_left || "";
+          delete element.dataset._sb_padding_top;
+          delete element.dataset._sb_padding_right;
+          delete element.dataset._sb_padding_bottom;
+          delete element.dataset._sb_padding_left;
+          delete element.dataset._sb_padding_applied;
+        }
+
+        // Restore overflow if we modified it
+        if (element.dataset._sb_overflow_saved !== undefined) {
+          element.style.overflow = element.dataset._sb_overflow_saved || "";
+          delete element.dataset._sb_overflow_saved;
+        }
+      },
     };
   }
 

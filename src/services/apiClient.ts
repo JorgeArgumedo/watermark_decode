@@ -14,7 +14,7 @@ class ApiClient {
 
   constructor() {
     this.clientInstance = axios.create({
-      baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api",
+      baseURL: import.meta.env.VITE_API_BASE_URL || "https://php.edtest.mx.devops1.territorio.la/proctoring/dashboard/src/sync",
       timeout: 15000, // 15 segundos timeout por defecto
       headers: {
         "Content-Type": "application/json",

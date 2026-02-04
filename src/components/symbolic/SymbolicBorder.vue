@@ -48,30 +48,21 @@ const renderOptions = computed(() => ({
 }));
 
 const updateBorder = () => {
-  if (container.value) {
-    // Clean up previous if any handled by renderer?
-    // The renderer implementation creates SVG if not exists, and updates if exists.
-    // However, it uses direct DOM access.
-    requestAnimationFrame(() => {
-      if (container.value) renderBorder(container.value, renderOptions.value);
-    });
+  if (!container.value) return;
+
+  const existing = container.value.querySelector("svg[data-symbolic-border]");
+  if (existing) {
+    existing.remove();
   }
+
+  requestAnimationFrame(() => {
+    renderBorder(container.value!, renderOptions.value);
+  });
 };
 
 watch(() => props.idPersona, updateBorder);
 watch(() => props.borderWidth, updateBorder);
 watch(() => props.sides, updateBorder, { deep: true });
-
-onMounted(() => {
-  // Add small delay to ensure layout
-  setTimeout(updateBorder, 50);
-
-  // Resize observer to re-render
-  const ro = new ResizeObserver(() => {
-    requestAnimationFrame(updateBorder);
-  });
-  if (container.value) ro.observe(container.value);
-});
 
 onMounted(() => {
   setTimeout(updateBorder, 50);

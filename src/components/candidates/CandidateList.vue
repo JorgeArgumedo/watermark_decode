@@ -1,13 +1,12 @@
 <template>
-  <div class="candidate-list column full-height">
+  <div class="candidate-list">
     <!-- Toolbar -->
-    <div class="col-auto q-mb-md">
-      <div class="row items-center justify-between q-mb-sm">
-        <div class="text-h6">
-          {{ t("analysis.candidateList") }} ({{ filteredCandidatesCount }} /
-          {{ totalCandidatesCount }})
+    <header class="toolbar q-mb-md">
+      <div class="toolbar-row">
+        <div class="title text-h6">
+          {{ t("analysis.candidateList") }} ({{ filteredCandidatesCount }} / {{ totalCandidatesCount }})
         </div>
-        <div>
+        <div class="toolbar-actions">
           <q-btn-dropdown
             v-if="totalCandidatesCount > 0"
             outline
@@ -158,64 +157,47 @@
       </div>
 
       <!-- Filters -->
-      <div
-        v-if="totalCandidatesCount > 0"
-        class="row q-gutter-sm"
-      >
-        <q-btn-group
-          outline
-          spread
-          class="col-12 col-sm-auto"
-        >
-          <q-btn
-            v-for="status in SYSTEM_STATUS_OPTIONS"
-            :key="status.value"
-            :outline="!systemFilters.includes(status.value)"
-            :color="
-              systemFilters.includes(status.value) ? status.color : 'grey'
-            "
-            dense
-            :icon="status.icon"
-            class="q-px-sm"
-            @click="toggleSystemFilter(status.value)"
-          >
-            <q-tooltip>{{ t(`status.${status.value}`) }}</q-tooltip>
-          </q-btn>
-        </q-btn-group>
+      <div v-if="totalCandidatesCount > 0" class="filters">
+        <div class="filter-group">
+          <q-btn-group outline spread class="filter-buttons">
+            <q-btn
+              v-for="status in SYSTEM_STATUS_OPTIONS"
+              :key="status.value"
+              :outline="!systemFilters.includes(status.value)"
+              :color="systemFilters.includes(status.value) ? status.color : 'grey'"
+              dense
+              :icon="status.icon"
+              class="q-px-sm"
+              @click="toggleSystemFilter(status.value)"
+            >
+              <q-tooltip>{{ t(`status.${status.value}`) }}</q-tooltip>
+            </q-btn>
+          </q-btn-group>
+        </div>
 
-        <q-btn-group
-          outline
-          spread
-          class="col-12 col-sm-auto"
-        >
-          <q-btn
-            v-for="status in ANALYSIS_STATUS_OPTIONS"
-            :key="status.value"
-            :outline="!analysisFilters.includes(status.value)"
-            :color="
-              analysisFilters.includes(status.value) ? status.color : 'grey'
-            "
-            dense
-            :icon="status.icon"
-            class="q-px-sm"
-            @click="toggleAnalysisFilter(status.value)"
-          >
-            <q-tooltip>{{ t(`status.${status.value}`) }}</q-tooltip>
-          </q-btn>
-        </q-btn-group>
+        <div class="filter-group">
+          <q-btn-group outline spread class="filter-buttons">
+            <q-btn
+              v-for="status in ANALYSIS_STATUS_OPTIONS"
+              :key="status.value"
+              :outline="!analysisFilters.includes(status.value)"
+              :color="analysisFilters.includes(status.value) ? status.color : 'grey'"
+              dense
+              :icon="status.icon"
+              class="q-px-sm"
+              @click="toggleAnalysisFilter(status.value)"
+            >
+              <q-tooltip>{{ t(`status.${status.value}`) }}</q-tooltip>
+            </q-btn>
+          </q-btn-group>
+        </div>
       </div>
-    </div>
+    </header>
 
     <!-- Virtual List -->
-    <div
-      v-if="filteredCandidatesCount > 0"
-      class="col relative-position"
-    >
-      <q-virtual-scroll
-        v-slot="{ item }"
-        class="absolute-full"
-        :items="filteredCandidates"
-      >
+    <div v-if="filteredCandidatesCount > 0" class="list-body">
+      <q-virtual-scroll v-slot="{ item }" class="virtual-list" :items="filteredCandidates">
+
         <CandidateItem
           :key="item.id"
           :candidate="item"
@@ -230,7 +212,7 @@
     <!-- Empty State (No Candidates or No Matches) -->
     <div
       v-else
-      class="col text-center q-pa-xl text-grey-5 border-dashed rounded-borders row flex-center"
+      class="empty-state text-center q-pa-xl text-grey-5 border-dashed rounded-borders"
     >
       <div>
         <q-icon
@@ -301,6 +283,60 @@ const confirmClearAll = () => {
 </script>
 
 <style scoped>
+.candidate-list {
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* allow parent to control height and enable inner scroll */
+}
+
+.toolbar {
+  flex: 0 0 auto;
+}
+
+.toolbar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.toolbar .title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+}
+
+.filters {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.list-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 0.5rem; /* small gutter for scrollbar */
+}
+
+.virtual-list {
+  width: 100%;
+  height: 100%;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
 .border-dashed {
   border: 2px dashed #e0e0e0;
 }

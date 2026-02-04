@@ -1,19 +1,15 @@
 <template>
   <q-page class="q-pa-md">
-    <div class="row q-col-gutter-lg justify-center main-row">
-      <!-- Left Column: Input or Details -->
-      <div class="col-12 col-md-5 col-lg-4 scroll-y-if-needed">
-        <!-- Candidate Detail View -->
+    <div class="analysis-grid">
+      <!-- Left Column: Detail / Input (larger responsive area) -->
+      <section class="panel detail-panel">
         <transition
           appear
           enter-active-class="animated fadeIn"
           leave-active-class="animated fadeOut"
           mode="out-in"
         >
-          <div
-            v-if="selectedCandidate"
-            key="detail"
-          >
+          <div v-if="selectedCandidate" key="detail" class="detail-inner">
             <q-btn
               flat
               icon="arrow_back"
@@ -25,10 +21,7 @@
           </div>
 
           <!-- Input View -->
-          <div
-            v-else
-            key="input"
-          >
+          <div v-else key="input" class="detail-inner">
             <q-card class="q-mb-md">
               <q-card-section>
                 <div class="text-h6 q-mb-md">
@@ -42,19 +35,16 @@
             </q-card>
           </div>
         </transition>
-      </div>
+      </section>
 
-      <!-- Right Column: List -->
-      <div
-        class="col-12 col-md-7 col-lg-8 column"
-        style="height: calc(100vh - 100px)"
-      >
+      <!-- Right Column: List (narrower responsive area) -->
+      <aside class="panel list-panel">
         <CandidateList
           class="col"
           :selected-id="selectedCandidate?.id"
           @select="onCandidateSelect"
         />
-      </div>
+      </aside>
     </div>
   </q-page>
 </template>
@@ -111,6 +101,7 @@ const handleSequenceSubmit = async (symbolicSequence: string) => {
   try {
     const newlyGeneratedCandidatesCount =
       await candidatesStore.generateCandidatesFromSequence(symbolicSequence);
+      await candidatesStore.synchronizeCandidatesWithExternalApi();
 
     if (newlyGeneratedCandidatesCount > 0) {
       loadingNotification({
@@ -147,7 +138,7 @@ const handleSequenceSubmit = async (symbolicSequence: string) => {
   }
 };
 
-const handleIdSubmit = (targetPersonaId: string) => {
+const handleIdSubmit = async (targetPersonaId: string) => {
   try {
     const generatedSequence = encodeIdToSymbolicSequence(
       targetPersonaId,
@@ -159,8 +150,55 @@ const handleIdSubmit = (targetPersonaId: string) => {
       "manual",
     );
     candidatesStore.addCandidate(newCandidate);
+    await candidatesStore.synchronizeCandidatesWithExternalApi();
   } catch (error) {
     console.error("Error processing ID:", error);
   }
 };
 </script>
+
+<style scoped>
+.analysis-grid {
+  display: grid;
+  grid-template-columns: minmax(360px, 1.6fr) minmax(280px, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .analysis-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panel {
+  height: calc(100vh - 120px);
+  /* No overflow on parent: let inner elements handle scrolling to avoid nested scrollbars */
+  min-height: 0; /* important to allow inner scroll in flex children */
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-inner {
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Ensure direct children grow and handle their own scroll */
+.detail-inner > * {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.list-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.list-panel > * {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+</style>

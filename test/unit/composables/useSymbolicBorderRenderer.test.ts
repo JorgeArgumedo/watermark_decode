@@ -57,4 +57,50 @@ describe("useSymbolicBorderRenderer", () => {
 
     expect(firstSvg).toBe(secondSvg); // Should reuse
   });
+
+  it("attaches a ResizeObserver when available and cleans up", () => {
+    // Mock global ResizeObserver
+    class MockRO {
+      observed: Element[] = [];
+      observe(el: Element) {
+        this.observed.push(el);
+      }
+      disconnect() {
+        this.observed = [];
+      }
+    }
+    const originalRO = (globalThis as any).ResizeObserver;
+    (globalThis as any).ResizeObserver = MockRO;
+
+    try {
+      const { renderBorder } = useSymbolicBorderRenderer();
+      const r = renderBorder(element, { number: "999" });
+      const svg = element.querySelector('svg[data-created-by="symbolic-border"]') as any;
+      expect(svg).toBeTruthy();
+      expect(svg._sb_ro).toBeInstanceOf(MockRO);
+      // Clean up
+      r.destroy();
+    } finally {
+      (globalThis as any).ResizeObserver = originalRO;
+    }
+  });
+
+  it("attaches window resize/orientation handlers and removes them on destroy", () => {
+    const addSpy = vi.spyOn(window, "addEventListener");
+    const removeSpy = vi.spyOn(window, "removeEventListener");
+
+    const { renderBorder } = useSymbolicBorderRenderer();
+    const r = renderBorder(element, { number: "101" });
+
+    expect(addSpy).toHaveBeenCalledWith("resize", expect.any(Function));
+    expect(addSpy).toHaveBeenCalledWith("orientationchange", expect.any(Function));
+
+    r.destroy();
+
+    expect(removeSpy).toHaveBeenCalledWith("resize", expect.any(Function));
+    expect(removeSpy).toHaveBeenCalledWith("orientationchange", expect.any(Function));
+
+    addSpy.mockRestore();
+    removeSpy.mockRestore();
+  });
 });

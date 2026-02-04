@@ -25,6 +25,7 @@ class CandidateService {
 
     const requestPayload: CandidateDetailsRequest = {
       ids: candidateIds,
+      authorization: true,
     };
 
     try {
