@@ -1,13 +1,6 @@
 <template>
-  <div
-    ref="detailWrapper"
-    class="candidate-detail-wrapper full-height"
-  >
-    <q-card
-      bordered
-      flat
-      class="candidate-detail bg-white full-height column"
-    >
+  <div ref="detailWrapper" class="candidate-detail-wrapper full-height">
+    <q-card bordered flat class="candidate-detail bg-white full-height column">
       <q-card-section class="col overflow-auto">
         <!-- Header -->
         <div class="text-h6 q-mb-md">
@@ -17,10 +10,7 @@
         <!-- ========================= -->
         <!-- 1. IDENTIDAD SIMBÓLICA -->
         <!-- ========================= -->
-        <q-list
-          separator
-          dense
-        >
+        <q-list separator dense>
           <div class="top-summary">
             <div class="text-caption text-grey">
               {{ t('common.id') }}: {{ candidate.id }}
@@ -31,27 +21,14 @@
                 {{ t("analysis.inputSequence") }}
               </div>
               <div class="sequence-box">
-                <HorizontalSymbols
-                  :sequence="candidate.sequence"
-                  size="sm"
-                />
+                <HorizontalSymbols :sequence="candidate.sequence" size="sm" />
               </div>
             </div>
             <div class="statuses">
-              <q-chip
-                dense
-                :color="systemColor"
-                text-color="white"
-                :icon="systemIcon"
-              >
+              <q-chip dense :color="systemColor" text-color="white" :icon="systemIcon">
                 {{ t(`status.${candidate.systemStatus}`) }}
               </q-chip>
-              <q-chip
-                dense
-                :color="analysisColor"
-                text-color="white"
-                :icon="analysisIcon"
-              >
+              <q-chip dense :color="analysisColor" text-color="white" :icon="analysisIcon">
                 {{ t(`status.${candidate.analysisStatus}`) }}
               </q-chip>
             </div>
@@ -68,68 +45,54 @@
         </div>
 
         <div v-if="candidate.systemStatus === 'found'">
-          <div class="info-grid">
-            <q-list
-              dense
-              class="info-column"
-            >
-              <q-item v-if="candidate.nombre">
-                <q-item-section>
-                  <q-item-label caption>
-                    {{ t('analysis.name') }}
-                  </q-item-label>
-                  <q-item-label>{{ candidate.nombre }}</q-item-label>
-                </q-item-section>
-              </q-item>
+          <q-list dense class="info-candidate">
+            <q-item v-if="candidate.nombre">
+              <q-item-section>
+                <q-item-label caption>
+                  {{ t('analysis.name') }}
+                </q-item-label>
+                <q-item-label>{{ candidate.nombre }}</q-item-label>
+              </q-item-section>
+            </q-item>
 
-              <q-item v-if="candidate.usuario">
-                <q-item-section>
-                  <q-item-label caption>
-                    {{ t('analysis.username') }}
-                  </q-item-label>
-                  <q-item-label>{{ candidate.usuario }}</q-item-label>
-                </q-item-section>
-              </q-item>
+            <q-item v-if="candidate.usuario">
+              <q-item-section>
+                <q-item-label caption>
+                  {{ t('analysis.username') }}
+                </q-item-label>
+                <q-item-label>{{ candidate.usuario }}</q-item-label>
+              </q-item-section>
+            </q-item>
 
-              <q-item v-if="candidate.email">
-                <q-item-section>
-                  <q-item-label caption>
-                    {{ t('analysis.email') }}
-                  </q-item-label>
-                  <q-item-label>{{ candidate.email }}</q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list>
+            <q-item v-if="candidate.email">
+              <q-item-section>
+                <q-item-label caption>
+                  {{ t('analysis.email') }}
+                </q-item-label>
+                <q-item-label>{{ candidate.email }}</q-item-label>
+              </q-item-section>
+            </q-item>
 
-            <q-list
-              dense
-              class="info-column"
-            >
-              <q-item v-if="candidate.matricula">
-                <q-item-section>
-                  <q-item-label caption>
-                    {{ t('analysis.registration') }}
-                  </q-item-label>
-                  <q-item-label>{{ candidate.matricula }}</q-item-label>
-                </q-item-section>
-              </q-item>
-
-              <q-item v-if="candidate.estado">
-                <q-item-section>
-                  <q-item-label caption>
-                    {{ t('analysis.state') }}
-                  </q-item-label>
-                  <q-item-label>{{ candidate.estado }}</q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </div>
+            <q-item v-if="candidate.matricula">
+              <q-item-section>
+                <q-item-label caption>
+                  {{ t('analysis.registration') }}
+                </q-item-label>
+                <q-item-label>{{ candidate.matricula }}</q-item-label>
+              </q-item-section>
+            </q-item>
+            <!-- <q-item v-if="candidate.estado">
+              <q-item-section>
+                <q-item-label caption>
+                  {{ t('analysis.state') }}
+                </q-item-label>
+                <q-item-label>{{ candidate.estado }}</q-item-label>
+              </q-item-section>
+            </q-item> -->
+          </q-list>
         </div>
 
-        <div
-          v-else
-          class="text-grey"
-        >
+        <div v-else class="text-grey">
           {{ t("analysis.noPersonData") }}
         </div>
 
@@ -142,27 +105,13 @@
           {{ t("analysis.photos") }}
         </div>
 
-        <div
-          v-if="candidate.fotos?.length"
-          class="photos-grid"
-        >
-          <div
-            v-for="(foto, index) in candidate.fotos"
-            :key="index"
-            class="photo-item"
-          >
-            <q-img
-              :src="foto"
-              spinner-color="primary"
-              class="photo-thumb"
-            />
+        <div v-if="candidate.fotos?.length" class="photos-grid">
+          <div v-for="(foto, index) in candidate.fotos" :key="index" class="photo-item">
+            <q-img :src="foto" spinner-color="primary" class="photo-thumb" />
           </div>
         </div>
 
-        <div
-          v-else
-          class="text-grey"
-        >
+        <div v-else class="text-grey">
           {{ t("analysis.noPhotos") }}
         </div>
 
@@ -176,44 +125,20 @@
             {{ t('analysis.groups') }}
           </div>
           <div class="row q-col-gutter-sm">
-            <q-card
-              v-for="(grupo, idx) in candidate.grupos"
-              :key="idx"
-              class="col-12 col-md-6 q-mb-sm"
-            >
+            <q-card v-for="(grupo, idx) in candidate.grupos" :key="idx" class="col-12 col-md-6 q-mb-sm">
               <q-card-section>
-                <div class="row items-center justify-between">
-                  <div>
-                    <div class="text-subtitle1">
-                      {{ grupo.grupo }}
-                    </div>
-                    <div class="text-caption text-grey">
-                      {{ grupo.periodo }} · {{ grupo.universidad }}
-                    </div>
-                  </div>
-                  <div class="text-caption text-grey">
-                    {{ t('analysis.groupId') }}: {{ grupo.idgrupo }}
-                  </div>
-                </div>
-                <q-separator class="q-my-sm" />
-                <div class="q-gutter-sm">
-                  <q-chip
-                    dense
-                    label
-                  >
-                    {{ t('analysis.idUniversidad') }}: {{ grupo.iduniversidad }}
+                <div class="flex items-center justify-between">
+                  <q-chip dense label>
+                    {{ t('analysis.universidad') }}: ({{ grupo.iduniversidad }}) {{ grupo.universidad }}
                   </q-chip>
-                  <q-chip
-                    dense
-                    label
-                  >
-                    {{ t('analysis.idDepartamento') }}: {{ grupo.iddepartamento }}
+                  <q-chip dense label>
+                    {{ t('analysis.departamento') }}: ({{ grupo.iddepartamento }}) {{ grupo.departamento }}
                   </q-chip>
-                  <q-chip
-                    dense
-                    label
-                  >
-                    {{ t('analysis.idPeriodo') }}: {{ grupo.idPeriodo }}
+                  <q-chip dense label>
+                    {{ t('analysis.periodo') }}: ({{ grupo.idPeriodo }}) {{ grupo.periodo }}
+                  </q-chip>
+                  <q-chip dense label>
+                    {{ t('analysis.group') }}: ({{ grupo.idgrupo }}) {{ grupo.grupo }}
                   </q-chip>
                 </div>
               </q-card-section>
@@ -222,24 +147,11 @@
         </div>
       </q-card-section>
 
-      <q-card-actions
-        align="right"
-        class="detail-actions detail-actions-sticky"
-      >
-        <q-btn
-          color="positive"
-          :label="t('actions.approve')"
-          icon="thumb_up"
-          :disable="candidate.analysisStatus === 'approved'"
-          @click="updateAnalysisStatus('approved')"
-        />
-        <q-btn
-          color="negative"
-          :label="t('actions.exclude')"
-          icon="block"
-          :disable="candidate.analysisStatus === 'excluded'"
-          @click="updateAnalysisStatus('excluded')"
-        />
+      <q-card-actions align="right" class="detail-actions detail-actions-sticky">
+        <q-btn color="positive" :label="t('actions.approve')" icon="thumb_up"
+          :disable="candidate.analysisStatus === 'approved'" @click="updateAnalysisStatus('approved')" />
+        <q-btn color="negative" :label="t('actions.exclude')" icon="block"
+          :disable="candidate.analysisStatus === 'excluded'" @click="updateAnalysisStatus('excluded')" />
       </q-card-actions>
     </q-card>
   </div>
@@ -330,23 +242,27 @@ const updateAnalysisStatus = (status: AnalysisStatus) => {
   padding-left: 5px;
   height: 100%;
   display: flex;
-  overflow: hidden;
+  overflow: auto;
 }
+
 /* Ensure the card behaves as a column flex container and allows the inner section to scroll */
 .candidate-detail {
   display: flex;
   flex-direction: column;
-  min-height: 0; /* allow children with overflow to be constrained */
+  min-height: 0;
+  /* allow children with overflow to be constrained */
   width: 100%;
 }
+
 .candidate-detail .q-card-section {
   flex: 1 1 auto;
-  min-height: 0; /* critical to avoid cut-off when using overflow-auto inside flex */
+  min-height: 0;
+  /* critical to avoid cut-off when using overflow-auto inside flex */
   overflow: auto;
   /* space for sticky actions */
   padding-bottom: 3.5rem;
 }
-  
+
 .detail-actions {
   flex: 0 0 auto;
   display: flex;
@@ -354,7 +270,7 @@ const updateAnalysisStatus = (status: AnalysisStatus) => {
   justify-content: flex-end;
   padding: 0.75rem 0.5rem;
   border-top: 1px solid #eee;
-  background: rgba(255,255,255,0.98);
+  background: rgba(255, 255, 255, 0.98);
 }
 
 .detail-actions-sticky {
@@ -369,9 +285,11 @@ const updateAnalysisStatus = (status: AnalysisStatus) => {
   grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
   gap: 0.5rem;
 }
+
 .photo-item {
   display: flex;
 }
+
 .photo-thumb {
   width: 100px;
   /* height: 110px; */
@@ -384,13 +302,25 @@ const updateAnalysisStatus = (status: AnalysisStatus) => {
   grid-template-columns: 1fr 1fr;
   gap: 0.75rem;
 }
+
 .info-column {
   min-width: 0;
 }
 
-@media (max-width: 700px) {
-  .info-grid { grid-template-columns: 1fr; }
-  .photo-thumb { height: 90px; }
+.info-candidate {
+  display: flex;
+  justify-content: flex-start;
+  align-items: baseline;
+  flex-wrap: wrap;
 }
 
+@media (max-width: 700px) {
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .photo-thumb {
+    height: 90px;
+  }
+}
 </style>

@@ -180,7 +180,7 @@ const handleIdSubmit = async (targetPersonaId: string) => {
 }
 
 .panel {
-  height: calc(100vh - 120px);
+  max-height: calc(100vh - 120px);
   /* No overflow on parent: let inner elements handle scrolling to avoid nested scrollbars */
   min-height: 0; /* important to allow inner scroll in flex children */
   display: flex;

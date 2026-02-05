@@ -51,6 +51,10 @@ export default {
     idDepartamento: "ID Departamento",
     idPeriodo: "ID Periodo",
     groupId: "ID grupo",
+    universidad: "Universidad",
+    departamento: "Departamento",
+    periodo: "Periodo",
+    group: "Grupo",
   },
   status: {
     pending: "Pendiente",
