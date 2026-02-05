@@ -9,7 +9,11 @@
           leave-active-class="animated fadeOut"
           mode="out-in"
         >
-          <div v-if="selectedCandidate" key="detail" class="detail-inner">
+          <div
+            v-if="selectedCandidate"
+            key="detail"
+            class="detail-inner"
+          >
             <q-btn
               flat
               icon="arrow_back"
@@ -21,7 +25,11 @@
           </div>
 
           <!-- Input View -->
-          <div v-else key="input" class="detail-inner">
+          <div
+            v-else
+            key="input"
+            class="detail-inner"
+          >
             <q-card class="q-mb-md">
               <q-card-section>
                 <div class="text-h6 q-mb-md">

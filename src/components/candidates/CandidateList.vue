@@ -157,9 +157,16 @@
       </div>
 
       <!-- Filters -->
-      <div v-if="totalCandidatesCount > 0" class="filters">
+      <div
+        v-if="totalCandidatesCount > 0"
+        class="filters"
+      >
         <div class="filter-group">
-          <q-btn-group outline spread class="filter-buttons">
+          <q-btn-group
+            outline
+            spread
+            class="filter-buttons"
+          >
             <q-btn
               v-for="status in SYSTEM_STATUS_OPTIONS"
               :key="status.value"
@@ -176,7 +183,11 @@
         </div>
 
         <div class="filter-group">
-          <q-btn-group outline spread class="filter-buttons">
+          <q-btn-group
+            outline
+            spread
+            class="filter-buttons"
+          >
             <q-btn
               v-for="status in ANALYSIS_STATUS_OPTIONS"
               :key="status.value"
@@ -195,9 +206,15 @@
     </header>
 
     <!-- Virtual List -->
-    <div v-if="filteredCandidatesCount > 0" class="list-body">
-      <q-virtual-scroll v-slot="{ item }" class="virtual-list" :items="filteredCandidates">
-
+    <div
+      v-if="filteredCandidatesCount > 0"
+      class="list-body"
+    >
+      <q-virtual-scroll
+        v-slot="{ item }"
+        class="virtual-list"
+        :items="filteredCandidates"
+      >
         <CandidateItem
           :key="item.id"
           :candidate="item"

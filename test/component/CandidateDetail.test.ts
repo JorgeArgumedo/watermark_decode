@@ -149,6 +149,14 @@ describe("CandidateDetail.vue", () => {
     expect(wrapper.findAll(".q-btn-stub").length).toBeGreaterThanOrEqual(2);
   });
 
+  it('shows no person data when systemStatus !== found', () => {
+    const wrapper = mountWrapper({ candidate: { ...mockCandidate, systemStatus: 'pending', fotos: [], grupos: [] } });
+
+    expect(wrapper.text()).toContain('No person data');
+    expect(wrapper.findAll('img').length).toBe(0);
+    expect(wrapper.text()).not.toContain('Group A');
+  });
+
   it("approve/exclude buttons call store updateCandidateStatus", async () => {
     const wrapper = mountWrapper();
     const spy = vi.spyOn(store, "updateCandidateStatus");

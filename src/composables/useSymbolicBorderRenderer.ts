@@ -91,6 +91,7 @@ export function useSymbolicBorderRenderer() {
 
   function renderBorder(element: HTMLElement, options: BorderOptions = {}) {
     // 1. Prepare
+    type SVGInternals = SVGSVGElement & { _sb_ro?: ResizeObserver; _sb_onresize?: () => void };
     const computed = window.getComputedStyle(element);
     if (computed.position === "static") {
       element.style.position = "relative";
@@ -160,21 +161,21 @@ export function useSymbolicBorderRenderer() {
             requestAnimationFrame(() => renderBorder(element, options));
           });
           ro.observe(element);
-          (svg as any)._sb_ro = ro;
+          (svg as SVGInternals)._sb_ro = ro;
         }
-      } catch (e) {
+      } catch {
         /* ignore: ResizeObserver not available */
       }
 
       // Fallback: listen window resize/orientation events as well (attach only once)
       try {
-        if (!(svg as any)._sb_onresize) {
+        if (!(svg as SVGInternals)._sb_onresize) {
           const onResize = () => requestAnimationFrame(() => renderBorder(element, options));
           window.addEventListener("resize", onResize);
           window.addEventListener("orientationchange", onResize);
-          (svg as any)._sb_onresize = onResize;
+          (svg as SVGInternals)._sb_onresize = onResize;
         }
-      } catch (e) {
+      } catch {
         /* ignore */
       }
 
@@ -447,18 +448,18 @@ export function useSymbolicBorderRenderer() {
       destroy: () => {
         // Disconnect ResizeObserver
         try {
-          if ((svg as any)._sb_ro) (svg as any)._sb_ro.disconnect();
-        } catch (e) {
+          if ((svg as SVGInternals)._sb_ro) (svg as SVGInternals)._sb_ro.disconnect();
+        } catch {
           /* ignore */
         }
 
         // Remove window handlers
         try {
-          if ((svg as any)._sb_onresize) {
-            window.removeEventListener("resize", (svg as any)._sb_onresize);
-            window.removeEventListener("orientationchange", (svg as any)._sb_onresize);
+          if ((svg as SVGInternals)._sb_onresize) {
+            window.removeEventListener("resize", (svg as SVGInternals)._sb_onresize);
+            window.removeEventListener("orientationchange", (svg as SVGInternals)._sb_onresize);
           }
-        } catch (e) {
+        } catch {
           /* ignore */
         }
 

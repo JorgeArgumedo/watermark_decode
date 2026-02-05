@@ -36,10 +36,10 @@ export default defineConfig({
         ".eslintrc.cjs",
       ],
       thresholds: {
-        lines: 80,
+        lines: 85,
         functions: 80,
         branches: 80,
-        statements: 80,
+        statements: 85,
       },
     },
     include: ["test/**/*.test.ts"],

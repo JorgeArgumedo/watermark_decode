@@ -1,8 +1,14 @@
 <template>
-  <div ref="detailWrapper" class="candidate-detail-wrapper full-height">
-    <q-card bordered flat class="candidate-detail bg-white full-height column">
+  <div
+    ref="detailWrapper"
+    class="candidate-detail-wrapper full-height"
+  >
+    <q-card
+      bordered
+      flat
+      class="candidate-detail bg-white full-height column"
+    >
       <q-card-section class="col overflow-auto">
-
         <!-- Header -->
         <div class="text-h6 q-mb-md">
           {{ t("analysis.candidateDetails") }}
@@ -11,28 +17,45 @@
         <!-- ========================= -->
         <!-- 1. IDENTIDAD SIMBÓLICA -->
         <!-- ========================= -->
-        <q-list separator dense>
+        <q-list
+          separator
+          dense
+        >
           <div class="top-summary">
             <div class="text-caption text-grey">
               {{ t('common.id') }}: {{ candidate.id }}
             </div>
 
             <div class="sequence">
-              <div class="caption">{{ t("analysis.inputSequence") }}</div>
+              <div class="caption">
+                {{ t("analysis.inputSequence") }}
+              </div>
               <div class="sequence-box">
-                <HorizontalSymbols :sequence="candidate.sequence" size="sm" />
+                <HorizontalSymbols
+                  :sequence="candidate.sequence"
+                  size="sm"
+                />
               </div>
             </div>
             <div class="statuses">
-              <q-chip dense :color="systemColor" text-color="white" :icon="systemIcon">
+              <q-chip
+                dense
+                :color="systemColor"
+                text-color="white"
+                :icon="systemIcon"
+              >
                 {{ t(`status.${candidate.systemStatus}`) }}
               </q-chip>
-              <q-chip dense :color="analysisColor" text-color="white" :icon="analysisIcon">
+              <q-chip
+                dense
+                :color="analysisColor"
+                text-color="white"
+                :icon="analysisIcon"
+              >
                 {{ t(`status.${candidate.analysisStatus}`) }}
               </q-chip>
             </div>
           </div>
-          
         </q-list>
 
         <!-- ========================= -->
@@ -46,40 +69,56 @@
 
         <div v-if="candidate.systemStatus === 'found'">
           <div class="info-grid">
-            <q-list dense class="info-column">
+            <q-list
+              dense
+              class="info-column"
+            >
               <q-item v-if="candidate.nombre">
                 <q-item-section>
-                  <q-item-label caption>{{ t('analysis.name') }}</q-item-label>
+                  <q-item-label caption>
+                    {{ t('analysis.name') }}
+                  </q-item-label>
                   <q-item-label>{{ candidate.nombre }}</q-item-label>
                 </q-item-section>
               </q-item>
 
               <q-item v-if="candidate.usuario">
                 <q-item-section>
-                  <q-item-label caption>{{ t('analysis.username') }}</q-item-label>
+                  <q-item-label caption>
+                    {{ t('analysis.username') }}
+                  </q-item-label>
                   <q-item-label>{{ candidate.usuario }}</q-item-label>
                 </q-item-section>
               </q-item>
 
               <q-item v-if="candidate.email">
                 <q-item-section>
-                  <q-item-label caption>{{ t('analysis.email') }}</q-item-label>
+                  <q-item-label caption>
+                    {{ t('analysis.email') }}
+                  </q-item-label>
                   <q-item-label>{{ candidate.email }}</q-item-label>
                 </q-item-section>
               </q-item>
             </q-list>
 
-            <q-list dense class="info-column">
+            <q-list
+              dense
+              class="info-column"
+            >
               <q-item v-if="candidate.matricula">
                 <q-item-section>
-                  <q-item-label caption>{{ t('analysis.registration') }}</q-item-label>
+                  <q-item-label caption>
+                    {{ t('analysis.registration') }}
+                  </q-item-label>
                   <q-item-label>{{ candidate.matricula }}</q-item-label>
                 </q-item-section>
               </q-item>
 
               <q-item v-if="candidate.estado">
                 <q-item-section>
-                  <q-item-label caption>{{ t('analysis.state') }}</q-item-label>
+                  <q-item-label caption>
+                    {{ t('analysis.state') }}
+                  </q-item-label>
                   <q-item-label>{{ candidate.estado }}</q-item-label>
                 </q-item-section>
               </q-item>
@@ -87,7 +126,10 @@
           </div>
         </div>
 
-        <div v-else class="text-grey">
+        <div
+          v-else
+          class="text-grey"
+        >
           {{ t("analysis.noPersonData") }}
         </div>
 
@@ -100,13 +142,27 @@
           {{ t("analysis.photos") }}
         </div>
 
-        <div v-if="candidate.fotos?.length" class="photos-grid">
-          <div v-for="(foto, index) in candidate.fotos" :key="index" class="photo-item">
-            <q-img :src="foto" spinner-color="primary" class="photo-thumb" />
+        <div
+          v-if="candidate.fotos?.length"
+          class="photos-grid"
+        >
+          <div
+            v-for="(foto, index) in candidate.fotos"
+            :key="index"
+            class="photo-item"
+          >
+            <q-img
+              :src="foto"
+              spinner-color="primary"
+              class="photo-thumb"
+            />
           </div>
         </div>
 
-        <div v-else class="text-grey">
+        <div
+          v-else
+          class="text-grey"
+        >
           {{ t("analysis.noPhotos") }}
         </div>
 
@@ -116,14 +172,24 @@
         <q-separator class="q-my-lg" />
 
         <div v-if="candidate.grupos?.length">
-          <div class="text-subtitle2 q-mb-sm">{{ t('analysis.groups') }}</div>
+          <div class="text-subtitle2 q-mb-sm">
+            {{ t('analysis.groups') }}
+          </div>
           <div class="row q-col-gutter-sm">
-            <q-card v-for="(grupo, idx) in candidate.grupos" :key="idx" class="col-12 col-md-6 q-mb-sm">
+            <q-card
+              v-for="(grupo, idx) in candidate.grupos"
+              :key="idx"
+              class="col-12 col-md-6 q-mb-sm"
+            >
               <q-card-section>
                 <div class="row items-center justify-between">
                   <div>
-                    <div class="text-subtitle1">{{ grupo.grupo }}</div>
-                    <div class="text-caption text-grey">{{ grupo.periodo }} · {{ grupo.universidad }}</div>
+                    <div class="text-subtitle1">
+                      {{ grupo.grupo }}
+                    </div>
+                    <div class="text-caption text-grey">
+                      {{ grupo.periodo }} · {{ grupo.universidad }}
+                    </div>
                   </div>
                   <div class="text-caption text-grey">
                     {{ t('analysis.groupId') }}: {{ grupo.idgrupo }}
@@ -131,24 +197,50 @@
                 </div>
                 <q-separator class="q-my-sm" />
                 <div class="q-gutter-sm">
-                  <q-chip dense label>{{ t('analysis.idUniversidad') }}: {{ grupo.iduniversidad }}</q-chip>
-                  <q-chip dense label>{{ t('analysis.idDepartamento') }}: {{ grupo.iddepartamento }}</q-chip>
-                  <q-chip dense label>{{ t('analysis.idPeriodo') }}: {{ grupo.idPeriodo }}</q-chip>
+                  <q-chip
+                    dense
+                    label
+                  >
+                    {{ t('analysis.idUniversidad') }}: {{ grupo.iduniversidad }}
+                  </q-chip>
+                  <q-chip
+                    dense
+                    label
+                  >
+                    {{ t('analysis.idDepartamento') }}: {{ grupo.iddepartamento }}
+                  </q-chip>
+                  <q-chip
+                    dense
+                    label
+                  >
+                    {{ t('analysis.idPeriodo') }}: {{ grupo.idPeriodo }}
+                  </q-chip>
                 </div>
               </q-card-section>
             </q-card>
           </div>
         </div>
-
       </q-card-section>
 
-      <q-card-actions align="right" class="detail-actions detail-actions-sticky">
-        <q-btn color="positive" :label="t('actions.approve')" icon="thumb_up"
-          :disable="candidate.analysisStatus === 'approved'" @click="updateAnalysisStatus('approved')" />
-        <q-btn color="negative" :label="t('actions.exclude')" icon="block"
-          :disable="candidate.analysisStatus === 'excluded'" @click="updateAnalysisStatus('excluded')" />
+      <q-card-actions
+        align="right"
+        class="detail-actions detail-actions-sticky"
+      >
+        <q-btn
+          color="positive"
+          :label="t('actions.approve')"
+          icon="thumb_up"
+          :disable="candidate.analysisStatus === 'approved'"
+          @click="updateAnalysisStatus('approved')"
+        />
+        <q-btn
+          color="negative"
+          :label="t('actions.exclude')"
+          icon="block"
+          :disable="candidate.analysisStatus === 'excluded'"
+          @click="updateAnalysisStatus('excluded')"
+        />
       </q-card-actions>
-
     </q-card>
   </div>
 </template>
@@ -231,8 +323,6 @@ const updateAnalysisStatus = (status: AnalysisStatus) => {
 /* =========================
    HELPERS
 ========================= */
-const formatDate = (date?: Date) =>
-  date ? new Date(date).toLocaleString() : "—";
 </script>
 
 <style scoped>
